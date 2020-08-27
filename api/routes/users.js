@@ -8,6 +8,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const httpStatus = require('http-status');
 
 // Load input validation
 const validateRegisterInput = require("../utils/register");
@@ -41,6 +42,7 @@ router.post("/register", (req, res) => {
                         .catch(err => console.log(err));
                 });
             });
+            return res.status(httpStatus.CREATED);
         }
     });
 });

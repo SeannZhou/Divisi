@@ -20,14 +20,15 @@ install_dependencies:
     changes:
       - yarn.lock
 
+      
 
 #continuous integration
-unit-test:
+e2e-test:
   stage: test
   cache:
     key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
     paths:
-      - node_modules/
+      - build/
     policy: pull
   services:
     - mongo

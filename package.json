@@ -10,7 +10,7 @@
     ]
   },
   "scripts": {
-    "test": "./node_modules/.bin/jest --runInBand"
+    "test": "cross-env NODE_ENV=test jest tests/e2e/  --env=node  --detectOpenHandles --runInBand --forceExit"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +19,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "is-empty": "^1.2.0",

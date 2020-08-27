@@ -47,6 +47,18 @@ router.post("/register", (req, res) => {
     });
 });
 
+router.get('/:email', (req, res) => {
+    User.findOne({email: req.params.email}).then(user => {
+        // console.log(user);
+        if (user){
+            return res.json({user: user});
+        } else {
+            // console.log(httpStatus.NOT_FOUND);
+            return res.status(httpStatus.NOT_FOUND).json({ error: `User with email ${req.params.email} does not exist`});
+        }
+    })
+})
+
 router.delete("/:email", (req, res) => {
     User.findOneAndDelete({ email: req.params.email }).then(user => {
         if (user) {

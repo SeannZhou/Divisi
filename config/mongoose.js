@@ -35,4 +35,4 @@ exports.connect = () => {
     return mongoose.connection;
 };
 
-exports.db = mongoose.connection;
+exports.connection = mongoose.connection;

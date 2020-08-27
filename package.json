@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
-  "scripts": {
-    "test": "jest --runInBand"
-  },
   "jest": {
     "testEnvironment": "node",
     "coveragePathIgnorePatterns": [
       "/node_modules/"
     ]
+  },
+  "scripts": {
+    "test": "jest --runInBand"
   },
   "author": "",
   "license": "ISC",

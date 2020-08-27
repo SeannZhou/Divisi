@@ -10,7 +10,7 @@
     ]
   },
   "scripts": {
-    "test": "jest --runInBand"
+    "test": "./node_modules/.bin/jest --runInBand"
   },
   "author": "",
   "license": "ISC",

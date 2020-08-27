@@ -1,7 +1,7 @@
 const request = require('supertest');
-const bcrypt = require('bcrypt')
-const app = require('../../server');
-
+const httpStatus = require('http-status');
+const app = require('../../config/express');
+const mongoose = require('../../config/mongoose');
 var sampleUser = {
     "name": "testUser",
     "email": "testUser@gmail.com",
@@ -9,25 +9,30 @@ var sampleUser = {
     "password2": "12345678"
 }
 
-jest.useFakeTimers()
-
 describe('user requests', () => {
-    
+    // setup
+    beforeAll(async () => {
+        mongoose.connect();
+    });
+
+    // teardown
+    afterAll(async () => {
+        mongoose.connection.close();
+    });
+
     let userId = null;
     it('should create a user successfully', async () => {
-        const res = await request(app)
+        request(app)
             .post('/api/users/register')
-            .send(sampleUser);
-        // console.log(res);
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.name).toEqual(sampleUser.name);
-        userId = res.body._id;
-        console.log(userId);
+            .send(sampleUser)
+            .expect(httpStatus.CREATED)
+            .then(res => {
+                expect(res.body.name).toEqual(sampleUser.name);
+            })
     });
-    it('should delete a user successfully', async() => {
-        const res = await request(app)
+    it('should delete a user successfully', async () => {
+        request(app)
             .delete(`/api/users/${sampleUser["email"]}`)
-        // console.log(res);
-        expect(res.statusCode).toEqual(200);
+            .expect(httpStatus.OK);
     });
 });

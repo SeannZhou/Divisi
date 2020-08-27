@@ -34,3 +34,6 @@ e2e-test:
     - mongo
   script:
     yarn test
+  only:
+    - merge_request
+    - master

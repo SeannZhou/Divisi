@@ -19,12 +19,11 @@ app.use('/api/', (req, res, next) => {
 });
 
 mongoose.connect();
-var db = mongoose.db;
-db.on('error', function () {
+mongoose.connection.on('error', function () {
     console.log("Failed to connect to database");
     process.exit(1);
 });
-db.once('open', function () {
+mongoose.connection.once('open', function () {
     console.log("Connected to database");
     app.use(passport.initialize());
     require("./config/passport")(passport);

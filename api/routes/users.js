@@ -12,6 +12,8 @@ const httpStatus = require('http-status');
 
 // Load input validation
 const validateRegisterInput = require("../utils/register");
+const validateEditInput = require("../utils/register");
+// const validateLoginInput = require("../../validation/login");
 
 //load models
 const User = require("../models/User");
@@ -56,6 +58,15 @@ router.get('/:email', (req, res) => {
             // console.log(httpStatus.NOT_FOUND);
             return res.status(httpStatus.NOT_FOUND).json({ error: `User with email ${req.params.email} does not exist`});
         }
+    })
+})
+
+
+router.post("/edit", (req,res) => {
+    User.findOne({email: "jennyxu1029@gmail.com"}).then(user => {
+        console.log(req.body.name);
+        user.name = req.body.name;
+        user.save();
     })
 })
 

@@ -1,3 +1,24 @@
+/**
+ * Contains all api functions for user related routes
+ * register
+ * login
+ * updateNameByEmail
+ * getUser
+ * getAllUser
+ * delete
+ */
+
+
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const httpStatus = require('http-status');
+
+//load models
+const User = require("../models/User");
+
+// Load input validation
+const validateRegisterInput = require("../utils/register");
+
 module.exports.registerUser = function (req, res) {
     const { errors, isValid } = validateRegisterInput(req.body);    // Form validation
     if (!isValid) return res.status(400).json(errors)
@@ -53,7 +74,7 @@ module.exports.getUser = function (req, res) {
     })
 }
 
-module.exports.getAllUser = function (req, res) {
+module.exports.getAllUsers = function (req, res) {
     User.find().then(user => {
         // console.log(user);
         if (user){

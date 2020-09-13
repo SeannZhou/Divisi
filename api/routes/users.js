@@ -17,6 +17,7 @@ const validateEditInput = require("../utils/register");
 
 //load models
 const User = require("../models/User");
+const Mixtape = require("../models/Mixtape");
 
 
 router.post("/register", (req, res) => {
@@ -27,11 +28,25 @@ router.post("/register", (req, res) => {
         if (user) {
             return res.status(400).json({ email: "Email already exists" });
         } else {
+            // const mixtape = new Mixtape({
+            //     name: "Testing"
+            // })
+
+
+            // const mixtape = new Mixtape({
+            //     title: "Song",
+            //     artist: ["hello", "world"],
+            //     language: "English",
+            // })
+
             const newUser = new User({
                 name: req.body.name,
                 email: req.body.email,
-                password: req.body.password
+                password: req.body.password,
+                mixtapes: req.body.mixtapes,
+                
             });
+
             console.log(newUser)
             // Hash password before saving in database
             bcrypt.genSalt(10, (err, salt) => {

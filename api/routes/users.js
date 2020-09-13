@@ -49,6 +49,19 @@ router.post("/register", (req, res) => {
     });
 });
 
+router.put("/:email/:name", (req, res) => {
+    let newName = req.params.name;
+    if (newName) {
+        User.updateOne({email: req.params.email}, {name: newName}).then(promise => {
+            if (promise.n == 1) {
+                return res.json({usobjecter: promise});
+            } else {
+                return res.status(httpStatus.NOT_FOUND).json({ error: `User with email ${req.params.email} does not exist`});
+            }
+        })
+    }
+})
+
 router.get('/:email', (req, res) => {
     User.findOne({email: req.params.email}).then(user => {
         // console.log(user);

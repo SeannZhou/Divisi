@@ -64,23 +64,19 @@ module.exports.updateNameByEmail = function (req, res) {
 
 module.exports.getUser = function (req, res) {
     User.findOne({email: req.params.email}).then(user => {
-        // console.log(user);
         if (user){
             return res.json({user: user});
         } else {
-            // console.log(httpStatus.NOT_FOUND);
-            return res.status(httpStatus.NOT_FOUND).json({ error: `User with email ${req.params.email} does not exist`});
+            return res.status(httpStatus.NOT_FOUND).json({ error: `There are no users found.`});
         }
     })
 }
 
 module.exports.getAllUsers = function (req, res) {
     User.find().then(user => {
-        // console.log(user);
         if (user){
             return res.json({user: user});
         } else {
-            // console.log(httpStatus.NOT_FOUND);
             return res.status(httpStatus.NOT_FOUND).json({ error: `User with email ${req.params.email} does not exist`});
         }
     })

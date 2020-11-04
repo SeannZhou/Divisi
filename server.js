@@ -31,12 +31,37 @@ mongoose.connection.once('open', function () {
 
 
 const users = require('./api/routes/users');
+const apis = require('./api/routes/api');
 const server = http.createServer(app);
 
 app.use("/api/users", users);
+app.use("/api/", apis);
 
 app.get('/', (req, res) => {
     res.send('ClouDL server up and running.');
+});
+
+app.get('/audio', function (req, res) {
+
+    var params = {
+        Bucket: 'New-Bucket-1020',
+        Key: 'test.mp3'
+    };
+
+    var downloadStream = client.downloadStream(params);
+
+    downloadStream.on('error', function () {
+        res.status(404).send('Not Found');
+    });
+    downloadStream.on('httpHeaders', function (statusCode, headers, resp) {
+        // Set Headers
+        res.set({
+            'Content-Type': headers['content-type']
+        });
+    });
+
+    // Pipe download stream to response
+    downloadStream.pipe(res);
 });
 
 const port = process.env.PORT || 5000;

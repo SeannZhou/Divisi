@@ -20,7 +20,11 @@ module.exports.registerUser = function (req, res) {
             const newUser = new User({
                 name: req.body.name,
                 email: req.body.email,
-                password: req.body.password
+                password: req.body.password,
+                profile_picture: req.body.profile_picture,
+                gender: req.body.gender,
+                country: req.body.country,
+                age: req.body.age,
             });
             console.log(newUser)
             // Hash password before saving in database
@@ -112,9 +116,18 @@ module.exports.deleteUser = function (req, res) {
     User.findOneAndDelete({ email: req.params.email }).then(user => {
         if (user) {
             return res.json({ user: user });
-        }else {
+        } else {
             return res.status(400).json({ email: `user with email ${req.param.email} does not exist`});
         }
     })
 }
- 
+
+module.exports.updateUser = function (req, res) {
+    User.updateOne({email: req.params.email}, {$set: req.body}).then(user => {
+        if (user) {
+            return res.json({ user: user });
+        } else {
+            return res.status(400).json({ email: `user with email ${req.param.email} does not exist`});
+        }
+    })
+}

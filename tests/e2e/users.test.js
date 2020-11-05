@@ -17,7 +17,17 @@ describe('user requests', () => {
 
     // teardown
     afterAll(async () => {
-        mongoose.connection.close();
+        // await mongoose.connection.close();
+        // await mongoose.disconnect()
+        if (server) {
+            await server.close();
+          }
+          mongoose.connections.forEach(async con => {
+            await con.close();
+          });
+          await mockgoose.mongodHelper.mongoBin.childProcess.kill();
+          await mockgoose.helper.reset();
+          await mongoose.disconnect();
     });
 
     let userId = null;

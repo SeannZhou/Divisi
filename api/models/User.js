@@ -3,6 +3,10 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const UserSchema = new Schema({
+    _id: {
+        type:  String,
+        required: true
+    },
     name: {
         type: String,
         required: true
@@ -14,6 +18,10 @@ const UserSchema = new Schema({
     password: {
         type: String,
         required: true
+    },
+    description: {
+        type: String,
+        required: false
     },
     mixtapes: {
         type: Array,

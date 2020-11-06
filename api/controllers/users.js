@@ -21,7 +21,11 @@ module.exports.registerUser = function (req, res) {
                 name: req.body.name,
                 email: req.body.email,
                 password: req.body.password,
-                profile_picture: req.body.profile_picture,
+                description: "",
+                profile_picture: req.body.profile_picture == null ? null : req.body.profile_picture,
+                mixtapes: [],
+                groups: [],
+                friends: [],
                 gender: req.body.gender,
                 country: req.body.country,
                 age: req.body.age,
@@ -76,6 +80,7 @@ module.exports.loginUser = function (req, res) {
                     (err, token) => {
                         res.json({
                             success: true,
+                            user: user,
                             token: "Bearer " + token
                         });
                     }
@@ -88,11 +93,11 @@ module.exports.loginUser = function (req, res) {
         });
     });
 }
- 
+
 module.exports.updateNameByEmail = function (req, res) {
     let newName = req.params.name;
     if (newName) {
-        User.updateOne({email: req.params.email}, {name: newName}).then(promise => {
+        User.updateOne({"_id": req.params.id}, {name: newName}).then(promise => {
             if (promise.n == 1) {
                 return res.json({usobjecter: promise});
             } else {
@@ -103,7 +108,7 @@ module.exports.updateNameByEmail = function (req, res) {
 }
  
 module.exports.getUser = function (req, res) {
-    User.findOne({email: req.params.email}).then(user => {
+    User.findOne({"_id": req.params.id}).then(user => {
         if (user){
             return res.json({user: user});
         } else {
@@ -113,21 +118,21 @@ module.exports.getUser = function (req, res) {
 }
  
 module.exports.deleteUser = function (req, res) {
-    User.findOneAndDelete({ email: req.params.email }).then(user => {
+    User.findOneAndDelete({ "_id": req.params.id }).then(user => {
         if (user) {
             return res.json({ user: user });
         } else {
-            return res.status(400).json({ email: `user with email ${req.param.email} does not exist`});
+            return res.status(httpStatus.BAD_REQUEST).json({ email: `user with email ${req.param.email} does not exist`});
         }
     })
 }
 
 module.exports.updateUser = function (req, res) {
-    User.updateOne({email: req.params.email}, {$set: req.body}).then(user => {
+    User.updateOne({"_id": req.params.id}, {$set: req.body}).then(user => {
         if (user) {
             return res.json({ user: user });
         } else {
-            return res.status(400).json({ email: `user with email ${req.param.email} does not exist`});
+            return res.status(httpStatus.BAD_REQUEST).json({ email: `user with email ${req.param.email} does not exist`});
         }
     })
 }

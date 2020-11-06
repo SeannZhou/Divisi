@@ -14,10 +14,10 @@ const { registerUser, loginUser, updateNameByEmail, getUser, deleteUser, updateU
  
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.put("/:email/:name", updateNameByEmail);
-router.get('/account/:email', getUser);
-router.delete("/account/:email", deleteUser);
-router.patch("/account/:email", updateUser);
+router.put("/:id/:name", updateNameByEmail);
+router.get('/account/:id', getUser);
+router.delete("/account/:id", deleteUser);
+router.patch("/account/:id", updateUser);
  
 module.exports = router;
  

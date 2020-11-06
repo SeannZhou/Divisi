@@ -21,7 +21,7 @@ module.exports.createMixtape = function (req, res) {
         tracks: [],
         user_branches: [],
         mixtape_cover: "",
-        description: "",
+        description: req.body.description,
         num_of_songs: 0,
         total_duration: 0,
         is_public: req.body.is_public,

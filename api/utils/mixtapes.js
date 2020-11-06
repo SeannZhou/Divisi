@@ -38,6 +38,7 @@ module.exports.validateTrackInput = function (data) {
     data.artist_name = !isEmpty(data.artist_name) ? data.artist_name : "";
     data.title = !isEmpty(data.title) ? data.title : "";
     data.cover_picture = !isEmpty(data.cover_picture) ? data.cover_picture : "";
+    data.description = !isEmpty(data.description) ? data.description : "";
     data.api_url = !isEmpty(data.api_url) ? data.api_url : "";
     data._id = !isEmpty(data._id) ? data._id : "";
 
@@ -49,10 +50,6 @@ module.exports.validateTrackInput = function (data) {
 // title checks
     if (Validator.isEmpty(data.title)) {
         errors.title = "Title field is empty";
-    }
-// cover_picture checks
-    if (Validator.isEmpty(data.cover_picture)) {
-        errors.cover_picture = "Cover_picture field is empty";
     }
 // api_url checks
     if (Validator.isEmpty(data.api_url)) {

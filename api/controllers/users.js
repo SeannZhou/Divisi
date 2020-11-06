@@ -70,7 +70,13 @@ module.exports.loginUser = function (req, res) {
                 // Create JWT Payload
                 const payload = {
                     id: user.id,
-                    username: user.username
+                    username: user.username,
+                    mixtapes: user.mixtapes,
+                    gender: user.gender,
+                    age: user.age,
+                    email: user.email,
+                    groups: user.groups
+
                 };
         // Sign token
                 jwt.sign(

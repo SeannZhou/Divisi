@@ -11,8 +11,9 @@ const { validateMixtapeInput, validateTrackInput } = require("../utils/mixtapes"
 
 
 module.exports.createMixtape = function (req, res) {
-    const { errors, isValid } = validateMixtapeInput(req.body);    // Mixtape validation
-    if (!isValid) return res.status(400).json(errors)
+    // const { errors, isValid } = validateMixtapeInput(req.body);    // Mixtape validation
+    // if (!isValid) return res.status(400).json(errors)
+ 
 
     // Creat mixtape and add branch obj inside
     const newMixtape = new Mixtape({
@@ -25,7 +26,7 @@ module.exports.createMixtape = function (req, res) {
         num_of_songs: 0,
         total_duration: 0,
         is_public: req.body.is_public,
-        created_by: req.body.user._id,
+        created_by: req.body.user.id,
         share_link: "",
         who_likes: [],
         num_of_likes: 0,
@@ -37,7 +38,7 @@ module.exports.createMixtape = function (req, res) {
             userMixtapes.push(mixtape);
 
             // Update User mixtapes
-            User.updateOne({"_id": req.body.user._id}, {mixtapes: userMixtapes}).then(promise => {
+            User.updateOne({"_id": req.body.user.id}, {mixtapes: userMixtapes}).then(promise => {
                 if (promise.n == 1) {
                     return res.json(mixtape);
                 } else {

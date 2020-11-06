@@ -41,7 +41,7 @@ module.exports.createMixtape = function (req, res) {
                 if (promise.n == 1) {
                     return res.json(mixtape);
                 } else {
-                    return res.status(httpStatus.NOT_FOUND).json({ error: `User with email ${req.params.email} does not exist`});
+                    return res.status(httpStatus.NOT_FOUND).json({ error: `User with id ${req.body.user._id} does not exist`});
                 }
             })
         } else {
@@ -69,24 +69,70 @@ module.exports.addTrack = function (req, res) {
 
     var mixtape = req.body.mixtape;
     if (mixtape == null) {
-        return res.status(httpStatus.BAD_REQUEST).json({ email: `mixtape does not exist`});
+        return res.status(httpStatus.BAD_REQUEST).json({ mixtape: `mixtape does not exist`});
     }
 
     let tracks = mixtape.tracks;
     let numOfSongs = mixtape.num_of_songs;
-    let totalDuration = mixtape.total_duration;
+    let totalDuration = parseInt(mixtape.total_duration);
     let track = req.body.track;
     // Update tracks in branch
     tracks.push(track);
     let updated_mixtape = {
         "tracks": tracks,
-        "total_duration": (totalDuration + track.duration),
+        "total_duration": (totalDuration + parseInt(track.duration)),
         "num_of_songs": (numOfSongs + 1)
+    };
+    Mixtape.updateOne({"_id": req.params.id}, {$set: updated_mixtape}).then(updatedMixtape => {
+        if (updatedMixtape){
+            return res.json({ Mixtape: updatedMixtape });
+            // Update User mixtapes
+            // User.updateOne({"_id": req.body.user._id}, {mixtapes: updatedMixtape}).then(promise => {
+            //     if (promise.n == 1) {
+            //         return res.json({ Mixtape: updatedMixtape });
+            //     } else {
+            //         return res.status(httpStatus.NOT_FOUND).json({ error: `User with id ${req.body.user._id} does not exist`});
+            //     }
+            // });
+        } else {
+            return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Branches found.`});
+        }
+    })
+}
+
+module.exports.removeTrack = function (req, res) {
+    var mixtape = req.body.mixtape;
+    if (mixtape == null) {
+        return res.status(httpStatus.BAD_REQUEST).json({ email: `mixtape does not exist`});
+    }
+
+    let tracks = mixtape.tracks;
+    let numOfSongs = mixtape.num_of_songs;
+    let totalDuration = parseInt(mixtape.total_duration);
+    let track = req.body.track;
+
+    // Update tracks in branch
+    if (req.body.track) {
+        let index = tracks.indexOf(track);
+        tracks.splice(index, 1);
+    }
+    let updated_mixtape = {
+        "tracks": tracks,
+        "total_duration": (totalDuration - parseInt(track.duration)),
+        "num_of_songs": (numOfSongs - 1)
 
     };
     Mixtape.updateOne({"_id": req.params.id}, {$set: updated_mixtape}).then(updatedMixtape => {
         if (updatedMixtape){
             return res.json({ Mixtape: updatedMixtape });
+            // Update User mixtapes
+            // User.updateOne({"_id": req.body.user._id}, {mixtapes: updatedMixtape}).then(promise => {
+            //     if (promise.n == 1) {
+            //         return res.json({ Mixtape: updatedMixtape });
+            //     } else {
+            //         return res.status(httpStatus.NOT_FOUND).json({ error: `User with id ${req.body.user._id} does not exist`});
+            //     }
+            // });
         } else {
             return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Branches found.`});
         }

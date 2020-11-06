@@ -12,13 +12,13 @@ const MixtapeSchema = new Schema({
         required: true
     },
     branch: {
-        type: Object,       // Will be changed to branch type later on
+        type: Schema.Types.ObjectId,
         required: false
     },
-    user_branches: {
-        type: Object,       // Hashmap of user.ids: branch.id
-        required: false
-    },
+    user_branches: [{
+        user_ids: Array,
+        branch_ids: Array,
+    }],
     mixtape_cover: {
         type: String,
         required: false

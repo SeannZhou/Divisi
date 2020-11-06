@@ -3,10 +3,12 @@ const mongoose = require("mongoose");
 
 // load models
 const Mixtape = require("../models/Mixtape");
+const User = require("../models/User");
+
 
 // load input validation
 const validateMixtapeInput = require("../utils/mixtapes");
-const createBranch = require("../utils/mixtapes");
+// const createBranch = require("../utils/mixtapes");
 
 /*
 create mixtape end point
@@ -17,40 +19,69 @@ create mixtape end point
 * */
 
 module.exports.createMixtape = function (req, res) {
-    console.log(req.body.name);
-    console.log(req.body.is_public);
-    console.log(req.body.created_by);
     const { errors, isValid } = validateMixtapeInput(req.body);    // Mixtape validation
     if (!isValid) return res.status(400).json(errors)
-    console.log("SOMETHING")
+
+    // Creating new branch object
+    let newBranchData = {
+        _id: mongoose.Types.ObjectId(),
+        name: req.body.name,
+        created_by: req.body.user._id,
+        share_link: "",
+        tracks: []
+    }
+    let newBranch = new Branch(newBranchData);
+    newBranch.save()
+        .then(newBranch => {
+            console.log(newBranchData);
+        })
+        .catch(err => console.log(err));
+
+    // Creat mixtape and add branch obj inside
     const newMixtape = new Mixtape({
         _id: mongoose.Types.ObjectId(),
         name: req.body.name,
-        branch: createBranch(req.body.name, req.body.created_by),
+        branch: newBranchData,
         user_branches: [],
         mixtape_cover: "",
         description: "",
         num_of_songs: 0,
         total_duration: 0,
         is_public: req.body.is_public,
-        created_by: req.body.created_by,
+        created_by: req.body.user._id,
         share_link: "",
         who_likes: [],
         num_of_likes: 0,
     });
-    newMixtape.save()
-        .then(mixtape => res.json(mixtape))
-        .catch(err => console.log(err));
 
-    return res.status(httpStatus.CREATED);
+    newMixtape.save().then(mixtape => {
+        if (mixtape) {      // Save into user if new mixtape successful
+            let userMixtapes = req.body.user.mixtapes;
+            userMixtapes.push(mixtape);
+
+            // Update User mixtapes
+            User.updateOne({"_id": req.body.user._id}, {mixtapes: userMixtapes}).then(promise => {
+                if (promise.n == 1) {
+                    return res.json(mixtape);
+                } else {
+                    return res.status(httpStatus.NOT_FOUND).json({ error: `User with email ${req.params.email} does not exist`});
+                }
+            })
+        } else {
+            return res.status(httpStatus.NOT_FOUND).json({ error: `There are no mixtapes found.`});
+        }
+
+    })
+
 }
 
 module.exports.getMixtape = function (req, res) {
     Mixtape.findOne({"_id": req.params.id}).then(mixtape => {
-        if (mixtape){
+        if (mixtape) {
+
             return res.json({mixtape: mixtape});
         } else {
-            return res.status(httpStatus.NOT_FOUND).json({ error: `There are no mixtapes found.`});
+            return res.status(httpStatus.BAD_REQUEST).json({ error: `Could not save mixtape.`});
         }
     })
 }

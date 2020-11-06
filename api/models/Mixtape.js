@@ -1,3 +1,5 @@
+const Branch = require("./Branch");
+
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
@@ -12,8 +14,21 @@ const MixtapeSchema = new Schema({
         required: true
     },
     branch: {
-        type: Schema.Types.ObjectId,
-        required: false
+        _id: {
+            type: String
+        },
+        name: {
+            type: String
+        },
+        created_by: {
+            type: String
+        },
+        share_link: {
+            type: String
+        },
+        tracks: {
+            type: Array
+        }
     },
     user_branches: [{
         user_ids: Array,

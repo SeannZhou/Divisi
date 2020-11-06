@@ -124,7 +124,7 @@ module.exports.deleteUser = function (req, res) {
         if (user) {
             return res.json({ user: user });
         } else {
-            return res.status(httpStatus.BAD_REQUEST).json({ email: `user with email ${req.param.email} does not exist`});
+            return res.status(httpStatus.BAD_REQUEST).json({ email: `user with id ${req.param.id} does not exist`});
         }
     })
 }
@@ -134,7 +134,7 @@ module.exports.updateUser = function (req, res) {
         if (user) {
             return res.json({ user: user });
         } else {
-            return res.status(httpStatus.BAD_REQUEST).json({ email: `user with email ${req.param.email} does not exist`});
+            return res.status(httpStatus.BAD_REQUEST).json({ email: `user with id ${req.param.id} does not exist`});
         }
     })
 }

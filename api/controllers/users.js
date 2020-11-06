@@ -20,7 +20,7 @@ module.exports.registerUser = function (req, res) {
         } else {
             const newUser = new User({
                 _id: mongoose.Types.ObjectId(),
-                name: req.body.name,
+                username: req.body.username,
                 email: req.body.email,
                 password: req.body.password,
                 profile_picture: "",
@@ -70,7 +70,7 @@ module.exports.loginUser = function (req, res) {
                 // Create JWT Payload
                 const payload = {
                     id: user.id,
-                    name: user.name
+                    username: user.username
                 };
         // Sign token
                 jwt.sign(
@@ -97,9 +97,9 @@ module.exports.loginUser = function (req, res) {
 }
 
 module.exports.updateNameByEmail = function (req, res) {
-    let newName = req.params.name;
+    let newName = req.params.username;
     if (newName) {
-        User.updateOne({"_id": req.params.id}, {name: newName}).then(promise => {
+        User.updateOne({"_id": req.params.id}, {username: newName}).then(promise => {
             if (promise.n == 1) {
                 return res.json({usobjecter: promise});
             } else {

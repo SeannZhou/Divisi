@@ -7,7 +7,7 @@ const UserSchema = new Schema({
         type:  String,
         required: true
     },
-    name: {
+    username: {
         type: String,
         required: true
     },
@@ -51,7 +51,6 @@ const UserSchema = new Schema({
         type: Number,
         required: false
     }
-
 });
 
 module.exports = User = mongoose.model("users", UserSchema);

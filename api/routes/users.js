@@ -14,7 +14,7 @@ const { registerUser, loginUser, updateNameByEmail, getUser, deleteUser, updateU
  
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.put("/:id/:name", updateNameByEmail);
+router.put("/:id/:username", updateNameByEmail);
 router.get('/account/:id', getUser);
 router.delete("/account/:id", deleteUser);
 router.patch("/account/:id", updateUser);

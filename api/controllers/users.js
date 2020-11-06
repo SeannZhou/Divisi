@@ -11,8 +11,8 @@ const validateRegisterInput = require("../utils/register");
 const validateLoginInput = require("../utils/login");
  
 module.exports.registerUser = function (req, res) {
-    const { errors, isValid } = validateRegisterInput(req.body);    // Form validation
-    if (!isValid) return res.status(400).json(errors)
+    // const { errors, isValid } = validateRegisterInput(req.body);    // Form validation
+    // if (!isValid) return res.status(400).json(errors)
  
     User.findOne({ email: req.body.email }).then(user => {
         if (user) {
@@ -70,7 +70,11 @@ module.exports.loginUser = function (req, res) {
                 // Create JWT Payload
                 const payload = {
                     id: user.id,
-                    username: user.username
+                    username: user.username,
+                    mixtape: user.mixtapes,
+                    gender: user.gender,
+                    age: user.age,
+                    email: user.email
                 };
         // Sign token
                 jwt.sign(

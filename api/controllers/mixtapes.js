@@ -70,6 +70,8 @@ module.exports.addTrack = function (req, res) {
     var mixtape = req.body.mixtape;
     if (mixtape == null) {
         return res.status(httpStatus.BAD_REQUEST).json({ mixtape: `mixtape does not exist`});
+    } else if (mixtape._id != req.params.id) {
+        return res.status(httpStatus.BAD_REQUEST).json({ mixtape: `mixtape id does not match`});
     }
 
     let tracks = mixtape.tracks;
@@ -104,6 +106,8 @@ module.exports.removeTrack = function (req, res) {
     var mixtape = req.body.mixtape;
     if (mixtape == null) {
         return res.status(httpStatus.BAD_REQUEST).json({ email: `mixtape does not exist`});
+    } else if (mixtape._id != req.params.id) {
+        return res.status(httpStatus.BAD_REQUEST).json({ mixtape: `mixtape id does not match`});
     }
 
     let tracks = mixtape.tracks;

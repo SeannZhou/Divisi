@@ -3,6 +3,10 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const UserSchema = new Schema({
+    _id: {
+        type:  String,
+        required: true
+    },
     name: {
         type: String,
         required: true
@@ -14,7 +18,40 @@ const UserSchema = new Schema({
     password: {
         type: String,
         required: true
+    },
+    description: {
+        type: String,
+        required: false
+    },
+    mixtapes: {
+        type: Array,
+        required: false
+    },
+    groups: {
+        type: Array,
+        required: false
+    },
+    friends: {
+        type: Array,
+        required: false
+    },
+    profile_picture: {
+        type: String,
+        required: false
+    },
+    gender: {
+        type: String,
+        required: false
+    },
+    country: {
+        type: String,
+        required: false
+    },
+    age: {
+        type: Number,
+        required: false
     }
+
 });
 
 module.exports = User = mongoose.model("users", UserSchema);

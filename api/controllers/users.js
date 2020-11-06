@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const httpStatus = require('http-status');
+const mongoose = require("mongoose");
  
 // load models
 const User = require("../models/User");
@@ -18,9 +19,18 @@ module.exports.registerUser = function (req, res) {
             return res.status(400).json({ email: "Email already exists" });
         } else {
             const newUser = new User({
+                _id: mongoose.Types.ObjectId(),
                 name: req.body.name,
                 email: req.body.email,
-                password: req.body.password
+                password: req.body.password,
+                profile_picture: "",
+                description: "",
+                mixtapes: [],
+                groups: [],
+                friends: [],
+                gender: "",
+                country: "",
+                age: "",
             });
             console.log(newUser)
             // Hash password before saving in database
@@ -72,6 +82,7 @@ module.exports.loginUser = function (req, res) {
                     (err, token) => {
                         res.json({
                             success: true,
+                            user: user,
                             token: "Bearer " + token
                         });
                     }
@@ -84,11 +95,11 @@ module.exports.loginUser = function (req, res) {
         });
     });
 }
- 
+
 module.exports.updateNameByEmail = function (req, res) {
     let newName = req.params.name;
     if (newName) {
-        User.updateOne({email: req.params.email}, {name: newName}).then(promise => {
+        User.updateOne({"_id": req.params.id}, {name: newName}).then(promise => {
             if (promise.n == 1) {
                 return res.json({usobjecter: promise});
             } else {
@@ -99,7 +110,7 @@ module.exports.updateNameByEmail = function (req, res) {
 }
  
 module.exports.getUser = function (req, res) {
-    User.findOne({email: req.params.email}).then(user => {
+    User.findOne({"_id": req.params.id}).then(user => {
         if (user){
             return res.json({user: user});
         } else {
@@ -109,12 +120,21 @@ module.exports.getUser = function (req, res) {
 }
  
 module.exports.deleteUser = function (req, res) {
-    User.findOneAndDelete({ email: req.params.email }).then(user => {
+    User.findOneAndDelete({ "_id": req.params.id }).then(user => {
         if (user) {
             return res.json({ user: user });
-        }else {
-            return res.status(400).json({ email: `user with email ${req.param.email} does not exist`});
+        } else {
+            return res.status(httpStatus.BAD_REQUEST).json({ email: `user with email ${req.param.email} does not exist`});
         }
     })
 }
- 
+
+module.exports.updateUser = function (req, res) {
+    User.updateOne({"_id": req.params.id}, {$set: req.body}).then(user => {
+        if (user) {
+            return res.json({ user: user });
+        } else {
+            return res.status(httpStatus.BAD_REQUEST).json({ email: `user with email ${req.param.email} does not exist`});
+        }
+    })
+}

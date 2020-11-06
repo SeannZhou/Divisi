@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const httpStatus = require('http-status');
+const mongoose = require("mongoose");
  
 // load models
 const User = require("../models/User");
@@ -18,17 +19,17 @@ module.exports.registerUser = function (req, res) {
             return res.status(400).json({ email: "Email already exists" });
         } else {
             const newUser = new User({
+                _id: mongoose.Types.ObjectId(),
                 name: req.body.name,
                 email: req.body.email,
                 password: req.body.password,
                 description: "",
-                profile_picture: req.body.profile_picture == null ? null : req.body.profile_picture,
                 mixtapes: [],
                 groups: [],
                 friends: [],
-                gender: req.body.gender,
-                country: req.body.country,
-                age: req.body.age,
+                gender: "",
+                country: "",
+                age: "",
             });
             console.log(newUser)
             // Hash password before saving in database

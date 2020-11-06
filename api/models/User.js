@@ -37,19 +37,19 @@ const UserSchema = new Schema({
     },
     profile_picture: {
         type: String,
-        required: true
+        required: false
     },
     gender: {
         type: String,
-        required: true
+        required: false
     },
     country: {
         type: String,
-        required: true
+        required: false
     },
     age: {
         type: Number,
-        required: true
+        required: false
     }
 
 });

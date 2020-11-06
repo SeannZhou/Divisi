@@ -71,10 +71,11 @@ module.exports.loginUser = function (req, res) {
                 const payload = {
                     id: user.id,
                     username: user.username,
-                    mixtape: user.mixtapes,
+                    mixtapes: user.mixtapes,
                     gender: user.gender,
                     age: user.age,
-                    email: user.email
+                    email: user.email,
+                    groups: user.groups
                 };
         // Sign token
                 jwt.sign(

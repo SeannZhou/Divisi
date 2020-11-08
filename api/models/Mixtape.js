@@ -13,13 +13,17 @@ const MixtapeSchema = new Schema({
         type: String,
         required: true
     },
+    branch: {
+        type: Object,
+        required: false
+    },
     tracks: {
         type: Array,
         required: false
     },
     user_branches: [{
-        user_ids: Array,
-        branch_ids: Array,
+        branch_id: Array,
+        branch_name: Array,
     }],
     mixtape_cover: {
         type: String,
@@ -42,7 +46,8 @@ const MixtapeSchema = new Schema({
         required: true
     },
     created_by: {
-        type: String,
+        user_id: { type: String },
+        name: { type: String },
         required: true
     },
     share_link: {

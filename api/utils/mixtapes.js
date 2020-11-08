@@ -10,7 +10,9 @@ module.exports.validateMixtapeInput = function (data) {
 
 // Convert empty fields to an empty string so we can use validator functions
     data.name = !isEmpty(data.name) ? data.name : "";
+    data.description = !isEmpty(data.description) ? data.description : "";
     data.user._id = !isEmpty(data.user._id) ? data.user._id : "";
+    data.user.username = !isEmpty(data.user.username) ? data.user.username : "";
 
 // Name checks
     if (Validator.isEmpty(data.name)) {
@@ -20,9 +22,13 @@ module.exports.validateMixtapeInput = function (data) {
     if (!Validator.isBoolean(data.is_public)) {
         errors.privacy = "Privacy field is invalid";
     }
-// created_by checks
+// user id checks
     if (Validator.isEmpty(data.user._id)) {
         errors.user_id = "user ID field is empty";
+    }
+// user name checks
+    if (Validator.isEmpty(data.user.username)) {
+        errors.name = "Name field is required";
     }
 
     return {

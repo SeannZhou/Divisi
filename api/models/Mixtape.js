@@ -1,5 +1,3 @@
-const Branch = require("./Branch");
-
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
@@ -12,10 +10,6 @@ const MixtapeSchema = new Schema({
     name: {
         type: String,
         required: true
-    },
-    branch: {
-        type: Object,
-        required: false
     },
     tracks: {
         type: Array,
@@ -48,14 +42,9 @@ const MixtapeSchema = new Schema({
     created_by: {
         user_id: { type: String },
         name: { type: String },
-        required: true
     },
     share_link: {
         type: String,
-        required: false
-    },
-    who_likes: {
-        type: Array,
         required: false
     },
     num_of_likes: {

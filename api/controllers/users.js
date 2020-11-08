@@ -114,15 +114,29 @@ module.exports.updateNameByEmail = function (req, res) {
         })
     }
 }
- 
+
+module.exports.getUserById = function (id, callback) {
+    getUserHelper(id, callback);
+}
+
+function getUserHelper(id, callback) {
+    User.findOne({"_id": id}).then(user => {
+        if (user) {
+            return callback(user);
+        } else {
+            return callback(null);
+        }
+    })
+}
+
 module.exports.getUser = function (req, res) {
-    User.findOne({"_id": req.params.id}).then(user => {
-        if (user){
+    getUserHelper(req.params.id, function(user){
+        if (user) {
             return res.json({user: user});
         } else {
             return res.status(httpStatus.NOT_FOUND).json({ error: `There are no users found.`});
         }
-    })
+    });
 }
  
 module.exports.deleteUser = function (req, res) {

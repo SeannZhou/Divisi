@@ -116,7 +116,7 @@ module.exports.updateNameByEmail = function (req, res) {
 }
 
 module.exports.getUserById = async function (id) {
-    let user = await getUserHelper(id);
+    let user = await User.findOne({"_id": id}).catch( (err) => {return null} );
     return user;
 }
 

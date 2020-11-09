@@ -12,7 +12,7 @@ const { getUserById } = require("../controllers/users");
 const { validateMixtapeInput, validateTrackInput } = require("../utils/mixtapes");
 
 
-module.exports.createMixtape = function (req, res) {
+module.exports.createMixtape = async function (req, res) {
     const { errors, isValid } = validateMixtapeInput(req.body);    // Mixtape validation
     if (!isValid) return res.status(httpStatus.BAD_REQUEST).json(errors)
 
@@ -35,33 +35,20 @@ module.exports.createMixtape = function (req, res) {
         num_of_likes: 0,
     });
 
-    newMixtape.save().then(mixtape => {
-        if (mixtape) {
-            // Save into user if new mixtape successful
-            getUserById(req.body.user._id, function (user) {
-                if (user == null) {
-                    return res.status(httpStatus.NOT_FOUND).json({ error: `User with id ${req.body.user._id} does not exist`});
-                }
-                let userMixtapes = user.mixtapes;
-                userMixtapes.push(mixtape);
-                // Update User mixtapes
-                User.updateOne({"_id": req.body.user._id}, {
-                    $push: {mixtapes:  userMixtapes}
-                }).then(promise => {
-                    if (promise.n == 1) {
-                        return res.json(mixtape);
-                    } else {
-                        return res.status(httpStatus.NOT_FOUND).json({ error: `User with id ${req.body.user._id} does not exist`});
-                    }
-                })
-            });
+    let user = await getUserById(req.body.user._id);
+    let userMixtapes = user.mixtapes;
+    userMixtapes.push(newMixtape);
+    let updatedUser = await User.updateOne({"_id": req.body.user._id}, {
+        $push: {mixtapes:  userMixtapes}
+    });
 
+    let retval = await newMixtape.save();
 
-
-        } else {
-            return res.status(httpStatus.NOT_FOUND).json({ error: `There are no mixtapes found.`});
-        }
-    })
+    if (retval){
+        return res.json(newMixtape);
+    } else {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no mixtapes found.`});
+    }
 }
 
 module.exports.getMixtape = function (req, res) {

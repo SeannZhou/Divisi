@@ -114,15 +114,25 @@ module.exports.updateNameByEmail = function (req, res) {
         })
     }
 }
- 
-module.exports.getUser = function (req, res) {
-    User.findOne({"_id": req.params.id}).then(user => {
-        if (user){
-            return res.json({user: user});
-        } else {
-            return res.status(httpStatus.NOT_FOUND).json({ error: `There are no users found.`});
-        }
-    })
+
+module.exports.getUserById = async function (id) {
+    let user = await User.findOne({"_id": id}).catch( (err) => {return null} );
+    return user;
+}
+
+async function getUserHelper(id) {
+    let user = await User.findOne({"_id": id}).catch( (err) => {return null} );
+    return user;
+}
+
+module.exports.getUser = async function (req, res) {
+    let user = await getUserHelper(req.params.id, null);
+
+    if (user != null) {
+        return res.json({user: user});
+    } else {
+        return res.status(httpStatus.NOT_FOUND).json({error: `There are no users found.`});
+    }
 }
  
 module.exports.deleteUser = function (req, res) {

@@ -5,15 +5,16 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const Mixtape = require("../models/Mixtape");
 
+// load controllers
+const { getUserById } = require("../controllers/users");
 
 // load input validation
 const { validateMixtapeInput, validateTrackInput } = require("../utils/mixtapes");
 
 
-module.exports.createMixtape = function (req, res) {
-    // const { errors, isValid } = validateMixtapeInput(req.body);    // Mixtape validation
-    // if (!isValid) return res.status(400).json(errors)
- 
+module.exports.createMixtape = async function (req, res) {
+    const { errors, isValid } = validateMixtapeInput(req.body);    // Mixtape validation
+    if (!isValid) return res.status(httpStatus.BAD_REQUEST).json(errors)
 
     // Creat mixtape and add branch obj inside
     const newMixtape = new Mixtape({
@@ -22,35 +23,32 @@ module.exports.createMixtape = function (req, res) {
         tracks: [],
         user_branches: [],
         mixtape_cover: "",
-        description: "",
+        description: req.body.description,
         num_of_songs: 0,
         total_duration: 0,
         is_public: req.body.is_public,
-        created_by: req.body.user.id,
+        created_by: {
+            user_id: req.body.user._id,
+            name: req.body.user.username
+        },
         share_link: "",
-        who_likes: [],
         num_of_likes: 0,
     });
 
-    newMixtape.save().then(mixtape => {
-        if (mixtape) {      // Save into user if new mixtape successful
-            let userMixtapes = req.body.user.mixtapes;
-            userMixtapes.push(mixtape);
+    let user = await getUserById(req.body.user._id);
+    let userMixtapes = user.mixtapes;
+    userMixtapes.push(newMixtape);
+    let updatedUser = await User.updateOne({"_id": req.body.user._id}, {
+        $push: {mixtapes:  userMixtapes}
+    });
 
-            // Update User mixtapes
-            User.updateOne({"_id": req.body.user.id}, {mixtapes: userMixtapes}).then(promise => {
-                if (promise.n == 1) {
-                    return res.json(mixtape);
-                } else {
-                    return res.status(httpStatus.NOT_FOUND).json({ error: `User with id ${req.body.user._id} does not exist`});
-                }
-            })
-        } else {
-            return res.status(httpStatus.NOT_FOUND).json({ error: `There are no mixtapes found.`});
-        }
+    let retval = await newMixtape.save();
 
-    })
-
+    if (retval){
+        return res.json(newMixtape);
+    } else {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no mixtapes found.`});
+    }
 }
 
 module.exports.getMixtape = function (req, res) {

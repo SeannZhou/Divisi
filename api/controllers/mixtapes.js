@@ -102,7 +102,7 @@ module.exports.addTrack = async function (req, res) {
         }
     };
 
-    let newMixtape = await Mixtape.updateOne({"_id": req.params.id}, update);
+    let newMixtape = await Mixtape.findOneAndUpdate({"_id": req.params.id}, update, {new: true});
     if (newMixtape == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
     }
@@ -164,7 +164,7 @@ module.exports.removeTrack = async function (req, res) {
             "tracks": tracks
         }
     };
-    let newMixtape = await Mixtape.updateOne({"_id": req.params.id}, update);
+    let newMixtape = await Mixtape.findOneAndUpdate({"_id": req.params.id}, update, {new: true});
     if (newMixtape == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
     }

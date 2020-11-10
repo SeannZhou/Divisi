@@ -92,7 +92,7 @@ module.exports.addTrack = async function (req, res) {
     let newDuration = (parseInt(mixtape.total_duration) + parseInt(req.body.track.duration));
 
     // Update tracks in mixtape
-    let update = {
+    let update_query = {
         "$set": {
             "total_duration": newDuration,
             "num_of_songs": newTotalSongs
@@ -102,7 +102,7 @@ module.exports.addTrack = async function (req, res) {
         }
     };
 
-    let newMixtape = await Mixtape.findOneAndUpdate({"_id": req.params.id}, update, {new: true});
+    let newMixtape = await Mixtape.findOneAndUpdate({"_id": req.params.id}, update_query, {new: true});
     if (newMixtape == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
     }
@@ -157,14 +157,14 @@ module.exports.removeTrack = async function (req, res) {
     }
 
     // Update tracks in mixtape
-    let update = {
+    let update_query = {
         "$set": {
             "total_duration": newDuration,
             "num_of_songs": newTotalSongs,
             "tracks": tracks
         }
     };
-    let newMixtape = await Mixtape.findOneAndUpdate({"_id": req.params.id}, update, {new: true});
+    let newMixtape = await Mixtape.findOneAndUpdate({"_id": req.params.id}, update_query, {new: true});
     if (newMixtape == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
     }

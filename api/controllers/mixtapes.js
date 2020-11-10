@@ -38,12 +38,15 @@ module.exports.createMixtape = async function (req, res) {
     let user = await getUserById(req.body.user._id);
     let userMixtapes = user.mixtapes;
     userMixtapes.push(newMixtape);
+
     let updatedUser = await User.updateOne({"_id": req.body.user._id}, {
         $push: {mixtapes:  userMixtapes}
     });
+    if (updatedUser == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no user found.`});
+    }
 
     let retval = await newMixtape.save();
-
     if (retval){
         return res.json(newMixtape);
     } else {
@@ -51,89 +54,135 @@ module.exports.createMixtape = async function (req, res) {
     }
 }
 
-module.exports.getMixtape = function (req, res) {
-    Mixtape.findOne({"_id": req.params.id}).then(mixtape => {
-        if (mixtape) {
-
-            return res.json({mixtape: mixtape});
-        } else {
-            return res.status(httpStatus.BAD_REQUEST).json({ error: `Could not save mixtape.`});
-        }
-    })
+module.exports.getMixtapeById = async function (id) {
+    let mixtape = await Mixtape.findOne({"_id": id}).catch( (err) => {return null} );
+    return mixtape;
 }
 
-module.exports.addTrack = function (req, res) {
-    const { errors, isValid } = validateTrackInput(req.body.track);    // Mixtape validation
-    if (!isValid) return res.status(400).json(errors)
-
-    var mixtape = req.body.mixtape;
-    if (mixtape == null) {
-        return res.status(httpStatus.BAD_REQUEST).json({ mixtape: `mixtape does not exist`});
-    }
-
-    let tracks = mixtape.tracks;
-    let numOfSongs = mixtape.num_of_songs;
-    let totalDuration = parseInt(mixtape.total_duration);
-    let track = req.body.track;
-    // Update tracks in branch
-    tracks.push(track);
-    let updated_mixtape = {
-        "tracks": tracks,
-        "total_duration": (totalDuration + parseInt(track.duration)),
-        "num_of_songs": (numOfSongs + 1)
-    };
-    Mixtape.updateOne({"_id": req.params.id}, {$set: updated_mixtape}).then(updatedMixtape => {
-        if (updatedMixtape){
-            return res.json({ Mixtape: updatedMixtape });
-            // Update User mixtapes
-            // User.updateOne({"_id": req.body.user._id}, {mixtapes: updatedMixtape}).then(promise => {
-            //     if (promise.n == 1) {
-            //         return res.json({ Mixtape: updatedMixtape });
-            //     } else {
-            //         return res.status(httpStatus.NOT_FOUND).json({ error: `User with id ${req.body.user._id} does not exist`});
-            //     }
-            // });
-        } else {
-            return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Branches found.`});
-        }
-    })
+async function getMixtapeHelper(id) {
+    let mixtape = await Mixtape.findOne({"_id": id}).catch( (err) => {return null} );
+    return mixtape;
 }
 
-module.exports.removeTrack = function (req, res) {
-    var mixtape = req.body.mixtape;
+module.exports.getMixtape = async function (req, res) {
+    let mixtape = await getMixtapeHelper(req.params.id);
+
+    if (mixtape != null) {
+        return res.json({mixtape: mixtape});
+    } else {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `Could not save mixtape.`});
+    }
+}
+
+module.exports.addTrack = async function (req, res) {
+    // const { errors, isValid } = validateTrackInput(req.body.track);    // Mixtape validation
+    // if (!isValid) return res.status(400).json(errors)
+
+    let user = await getUserById(req.body.user_id);
+    if (user == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `User with id ${req.body.user_id} does not exist`});
+    }
+
+    // Get mixtape
+    var mixtape = await getMixtapeHelper(req.params.id);
     if (mixtape == null) {
-        return res.status(httpStatus.BAD_REQUEST).json({ email: `mixtape does not exist`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
     }
+    let newTotalSongs = mixtape.num_of_songs + 1;
+    let newDuration = (parseInt(mixtape.total_duration) + parseInt(req.body.track.duration));
 
-    let tracks = mixtape.tracks;
-    let numOfSongs = mixtape.num_of_songs;
-    let totalDuration = parseInt(mixtape.total_duration);
-    let track = req.body.track;
-
-    // Update tracks in branch
-    if (req.body.track) {
-        let index = tracks.indexOf(track);
-        tracks.splice(index, 1);
-    }
-    let updated_mixtape = {
-        "tracks": tracks,
-        "total_duration": (totalDuration - parseInt(track.duration)),
-        "num_of_songs": (numOfSongs - 1)
-
-    };
-    Mixtape.updateOne({"_id": req.params.id}, {$set: updated_mixtape}).then(updatedMixtape => {
-        if (updatedMixtape){
-            return res.json({ Mixtape: updatedMixtape });
-            // Update User mixtapes
-            // User.updateOne({"_id": req.body.user._id}, {mixtapes: updatedMixtape}).then(promise => {
-            //     if (promise.n == 1) {
-            //         return res.json({ Mixtape: updatedMixtape });
-            //     } else {
-            //         return res.status(httpStatus.NOT_FOUND).json({ error: `User with id ${req.body.user._id} does not exist`});
-            //     }
-            // });
-        } else {
-            return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Branches found.`});
+    // Update tracks in mixtape
+    let update = {
+        "$set": {
+            "total_duration": newDuration,
+            "num_of_songs": newTotalSongs
+        },
+        "$push": {
+            "tracks": req.body.track
         }
-    })
+    };
+
+    let newMixtape = await Mixtape.updateOne({"_id": req.params.id}, update);
+    if (newMixtape == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
+    }
+
+    let userMixtapes = user.mixtapes;
+    for (let i = 0; i < userMixtapes.length; i++) {
+        if (userMixtapes[i]._id === mixtape._id) {
+            userMixtapes[i].total_duration = newDuration;
+            userMixtapes[i].num_of_songs = newTotalSongs;
+            userMixtapes[i].tracks.push(req.body.track);
+            break;
+        }
+    }
+
+    let newUser = await User.updateOne({"_id": req.body.user_id}, {mixtapes: userMixtapes});
+    if (newUser == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `User with id ${req.body.user_id} does not exist`});
+    }
+
+    return res.json({ success: true, Mixtape: newMixtape });
+}
+
+module.exports.removeTrack = async function (req, res) {
+    // const { errors, isValid } = validateTrackInput(req.body.track);    // Mixtape validation
+    // if (!isValid) return res.status(400).json(errors)
+
+    let user = await getUserById(req.body.user_id);
+    if (user == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `User with id ${req.body.user_id} does not exist`});
+    }
+
+    // Get mixtape
+    var mixtape = await getMixtapeHelper(req.params.id);
+    if (mixtape == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
+    }
+
+    if (mixtape.num_of_songs === 0) {
+        return res.status(httpStatus.BAD_REQUEST).json({ error: `There are no tracks to remove.`});
+    }
+
+    let newTotalSongs = mixtape.num_of_songs - 1;
+    let newDuration = (parseInt(mixtape.total_duration) - parseInt(req.body.track.duration));
+
+    // Find track to remove in mixtape
+    let tracks = mixtape.tracks;
+    for (let i = 0; i < tracks.length; i++) {
+        if (tracks[i]._id === req.body.track._id) {
+            tracks.splice(i, 1);
+            break;
+        }
+    }
+
+    // Update tracks in mixtape
+    let update = {
+        "$set": {
+            "total_duration": newDuration,
+            "num_of_songs": newTotalSongs,
+            "tracks": tracks
+        }
+    };
+    let newMixtape = await Mixtape.updateOne({"_id": req.params.id}, update);
+    if (newMixtape == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
+    }
+
+    let userMixtapes = user.mixtapes;
+    for (let i = 0; i < userMixtapes.length; i++) {
+        if (userMixtapes[i]._id === mixtape._id) {
+            userMixtapes[i].total_duration = newDuration;
+            userMixtapes[i].num_of_songs = newTotalSongs;
+            userMixtapes[i].tracks = tracks;
+            break;
+        }
+    }
+
+    let newUser = await User.updateOne({"_id": req.body.user_id}, {mixtapes: userMixtapes});
+    if (newUser == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `User with id ${req.body.user_id} does not exist`});
+    }
+
+    return res.json({ success: true, Mixtape: newMixtape });
 }

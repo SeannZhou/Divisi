@@ -126,7 +126,7 @@ async function getUserHelper(id) {
 }
 
 module.exports.getUser = async function (req, res) {
-    let user = await getUserHelper(req.params.id, null);
+    let user = await getUserHelper(req.params.id);
 
     if (user != null) {
         return res.json({user: user});
@@ -146,7 +146,7 @@ module.exports.deleteUser = function (req, res) {
 }
 
 module.exports.updateUser = function (req, res) {
-    User.updateOne({"_id": req.params.id}, {$set: req.body}).then(user => {
+    User.findOneAndUpdate({"_id": req.params.id}, {$set: req.body}, {new: true}).then(user => {
         if (user) {
             return res.json({ user: user });
         } else {

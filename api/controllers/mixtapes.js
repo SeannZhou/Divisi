@@ -13,8 +13,8 @@ const { validateMixtapeInput, validateTrackInput } = require("../utils/mixtapes"
 
 
 module.exports.createMixtape = async function (req, res) {
-    const { errors, isValid } = validateMixtapeInput(req.body);    // Mixtape validation
-    if (!isValid) return res.status(httpStatus.BAD_REQUEST).json(errors)
+    // const { errors, isValid } = validateMixtapeInput(req.body);    // Mixtape validation
+    // if (!isValid) return res.status(httpStatus.BAD_REQUEST).json(errors)
 
     // Creat mixtape and add branch obj inside
     const newMixtape = new Mixtape({
@@ -22,7 +22,7 @@ module.exports.createMixtape = async function (req, res) {
         name: req.body.name,
         tracks: [],
         user_branches: [],
-        mixtape_cover: "",
+        mixtape_cover: req.body.mixtape_cover,
         description: req.body.description,
         num_of_songs: 0,
         total_duration: 0,
@@ -41,7 +41,7 @@ module.exports.createMixtape = async function (req, res) {
     }
 
     let updatedUser = await User.updateOne({"_id": req.body.user._id}, {
-        $push: {mixtapes: { id: newMixtape._id, name: newMixtape.name }}
+        $push: {mixtapes: { _id: newMixtape._id, name: newMixtape.name }}
     });
     if (updatedUser == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no user found.`});
@@ -53,7 +53,7 @@ module.exports.createMixtape = async function (req, res) {
 module.exports.deleteMixtape = async function (req, res) {
     let mixtape = await Mixtape.findOneAndDelete({ "_id": req.params.id });
     if (mixtape == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ email: `Mixtape with id ${req.param.id} does not exist`});
+        return res.status(httpStatus.NOT_FOUND).json({ email: `Mixtape with id ${req.params.id} does not exist`});
     }
     let user = await User.update({ _id: req.body.user_id }, { $pull: { "mixtapes": { "_id": req.params.id } }});
     if (user == null) {

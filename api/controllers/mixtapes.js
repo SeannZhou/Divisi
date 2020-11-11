@@ -40,7 +40,7 @@ module.exports.createMixtape = async function (req, res) {
     userMixtapes.push(newMixtape);
 
     let updatedUser = await User.updateOne({"_id": req.body.user._id}, {
-        $push: {mixtapes:  userMixtapes}
+        $push: {mixtapes:  newMixtape}
     });
     if (updatedUser == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no user found.`});
@@ -52,6 +52,19 @@ module.exports.createMixtape = async function (req, res) {
     } else {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no mixtapes found.`});
     }
+}
+
+module.exports.deleteMixtape = async function (req, res) {
+    let mixtape = await Mixtape.findOneAndDelete({ "_id": req.params.id });
+    if (mixtape == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ email: `Mixtape with id ${req.param.id} does not exist`});
+    }
+    let user = await User.update({ _id: req.body.user_id }, { $pull: { "mixtapes": { "_id": req.params.id } }});
+    if (user == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ email: `User with id ${req.body.user_id} does not exist`});
+    }
+
+    return res.json({ mixtape: mixtape });
 }
 
 module.exports.getMixtapeById = async function (id) {

@@ -54,6 +54,19 @@ module.exports.createMixtape = async function (req, res) {
     }
 }
 
+module.exports.deleteMixtape = async function (req, res) {
+    let mixtape = await Mixtape.findOneAndDelete({ "_id": req.params.id });
+    if (mixtape == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ email: `Mixtape with id ${req.param.id} does not exist`});
+    }
+    let user = await User.update({ _id: req.body.user_id }, { $pull: { "mixtapes": { "_id": req.params.id } }});
+    if (user == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ email: `User with id ${req.body.user_id} does not exist`});
+    }
+
+    return res.json({ mixtape: mixtape });
+}
+
 module.exports.getMixtapeById = async function (id) {
     let mixtape = await Mixtape.findOne({"_id": id}).catch( (err) => {return null} );
     return mixtape;

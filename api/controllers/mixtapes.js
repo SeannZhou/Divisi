@@ -40,7 +40,7 @@ module.exports.createMixtape = async function (req, res) {
     userMixtapes.push(newMixtape);
 
     let updatedUser = await User.updateOne({"_id": req.body.user._id}, {
-        $push: {mixtapes:  userMixtapes}
+        $push: {mixtapes:  newMixtape}
     });
     if (updatedUser == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no user found.`});

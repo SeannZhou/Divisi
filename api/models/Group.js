@@ -15,7 +15,7 @@ const GroupSchema = new Schema({
         type: Array,
         required: true
     },
-    owner: {
+    created_by: {
         user_id: { type: String },
         name: { type: String }
     },

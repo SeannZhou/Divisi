@@ -12,6 +12,6 @@ const { createGroup, getGroup, userJoinsGroup } = controller;
 
 router.post("/group", createGroup);
 router.get('/group/:id', getGroup);
-router.patch("/group/:groupId/join/:userId", userJoinsGroup);
+router.patch("/group/:id/join", userJoinsGroup);
 
 module.exports = router;

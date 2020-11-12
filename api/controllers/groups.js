@@ -95,3 +95,14 @@ module.exports.userJoinsGroup = async function (req, res) {
 
     return res.json({ success: true, Group: newGroup });
 }
+
+module.exports.getGroupMixtapes = async function (req, res) {
+    let group = await getGroupHelper(req.params.id);
+
+    if (group != null) {
+        return res.json({mixtapes: group.mixtapes});
+    } else {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `Could not find group.`});
+    }
+
+}

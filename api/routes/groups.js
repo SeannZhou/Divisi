@@ -8,8 +8,10 @@ const passport = require("passport");
 
 // load controllers
 const controller = require("../controllers/groups");
-const { createGroup } = controller;
+const { createGroup, getGroup, userJoinsGroup } = controller;
 
 router.post("/group", createGroup);
+router.get('/group/:id', getGroup);
+router.patch("/group/:groupId/join/:userId", userJoinsGroup);
 
 module.exports = router;

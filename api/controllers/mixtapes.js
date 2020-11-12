@@ -79,7 +79,7 @@ module.exports.getMixtape = async function (req, res) {
     if (mixtape != null) {
         return res.json({mixtape: mixtape});
     } else {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `Could not save mixtape.`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `Could not find mixtape.`});
     }
 }
 

@@ -115,15 +115,12 @@ module.exports.updateNameByEmail = function (req, res) {
     }
 }
 
-module.exports.getUserById = async function (id) {
-    let user = await User.findOne({"_id": id}).catch( (err) => {return null} );
-    return user;
-}
-
 async function getUserHelper(id) {
     let user = await User.findOne({"_id": id}).catch( (err) => {return null} );
     return user;
 }
+
+module.exports.getUserById = getUserHelper;
 
 module.exports.getUser = async function (req, res) {
     let user = await getUserHelper(req.params.id);

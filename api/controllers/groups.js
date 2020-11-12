@@ -50,15 +50,12 @@ module.exports.createGroup = async function (req, res) {
     return res.json(newGroup);
 }
 
-module.exports.getGroupByID = async function (id) {
-    let group = await Group.findOne({"_id": id}).catch( (err) => {return null} );
-    return group;
-}
-
 async function getGroupHelper(id) {
     let group = await Group.findOne({"_id": id}).catch( (err) => {return null} );
     return group;
 }
+
+module.exports.getGroupByID = getGroupHelper;
 
 module.exports.getGroup = async function (req, res) {
     let group = await getGroupHelper(req.params.id);

@@ -49,3 +49,46 @@ module.exports.createGroup = async function (req, res) {
 
     return res.json(newGroup);
 }
+
+async function getGroupHelper(id) {
+    let group = await Group.findOne({"_id": id}).catch( (err) => {return null} );
+    return group;
+}
+
+module.exports.getGroupByID = getGroupHelper;
+
+module.exports.getGroup = async function (req, res) {
+    let group = await getGroupHelper(req.params.id);
+
+    if (group != null) {
+        return res.json({group: group});
+    } else {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `Could not find group.`});
+    }
+}
+
+module.exports.userJoinsGroup = async function (req, res) {
+    let update_query = { $push: { members:
+                {
+                    _id: req.body.user.userId,
+                    name: req.body.user.user_name
+                }
+    }};
+
+    let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query,{new: true});
+    if (newGroup == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Groups found.`});
+    }
+    update_query = { $push: { groups:
+                {
+                    _id: req.params.id,
+                    name: req.body.group_name
+                }
+        }};
+    let newUser = await User.findOneAndUpdate({"_id": req.body.user.user_id}, update_query, {new: true});
+    if (newUser == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Users found.`});
+    }
+
+    return res.json({ success: true, Group: newGroup, User: newUser });
+}

@@ -5,9 +5,6 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const Mixtape = require("../models/Mixtape");
 
-// load controllers
-// const { getUserById } = require("../controllers/users");
-
 // load input validation
 const { validateMixtapeInput, validateTrackInput } = require("../utils/mixtapes");
 
@@ -39,7 +36,6 @@ module.exports.createMixtape = async function (req, res) {
     if (retval == null){
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `Mixtape could not be saved.`});
     }
-
     let updatedUser = await User.updateOne({"_id": req.body.user._id}, {
         $push: {mixtapes: { _id: newMixtape._id, name: newMixtape.name }}
     });
@@ -63,15 +59,12 @@ module.exports.deleteMixtape = async function (req, res) {
     return res.json({ mixtape: mixtape });
 }
 
-module.exports.getMixtapeById = async function (id) {
-    let mixtape = await Mixtape.findOne({"_id": id}).catch( (err) => {return null} );
-    return mixtape;
-}
-
 async function getMixtapeHelper(id) {
     let mixtape = await Mixtape.findOne({"_id": id}).catch( (err) => {return null} );
     return mixtape;
 }
+
+module.exports.getMixtapeById = getMixtapeHelper();
 
 module.exports.getMixtape = async function (req, res) {
     let mixtape = await getMixtapeHelper(req.params.id);
@@ -79,7 +72,7 @@ module.exports.getMixtape = async function (req, res) {
     if (mixtape != null) {
         return res.json({mixtape: mixtape});
     } else {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `Could not save mixtape.`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `Could not find mixtape.`});
     }
 }
 

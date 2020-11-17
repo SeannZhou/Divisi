@@ -102,7 +102,7 @@ module.exports.userLeaveGroup = async function (req, res) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Users found.`});
     }
     let update_query = { $pull: { members:
-                { _id: req.body.user._id }
+                { _id: req.body.user_id }
         }};
 
     let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query,{new: true});

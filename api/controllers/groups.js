@@ -68,7 +68,7 @@ module.exports.getGroup = async function (req, res) {
 }
 
 module.exports.userJoinsGroup = async function (req, res) {
-    update_query = { $push: { groups:
+    let update_query = { $push: { groups:
                 {
                     _id: req.params.id,
                     name: req.body.group_name
@@ -78,7 +78,7 @@ module.exports.userJoinsGroup = async function (req, res) {
     if (newUser == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Users found.`});
     }
-    let update_query = { $push: { members:
+    update_query = { $push: { members:
                 {
                     _id: req.body.user._id,
                     name: req.body.user.username
@@ -94,14 +94,14 @@ module.exports.userJoinsGroup = async function (req, res) {
 }
 
 module.exports.userLeaveGroup = async function (req, res) {
-    update_query = { $pull: { groups:
+    let update_query = { $pull: { groups:
                 { _id: req.params.id }
         }};
-    let newUser = await User.findOneAndUpdate({"_id": req.body.user._id}, update_query, {new: true});
+    let newUser = await User.findOneAndUpdate({"_id": req.body.user_id}, update_query, {new: true});
     if (newUser == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Users found.`});
     }
-    let update_query = { $pull: { members:
+    update_query = { $pull: { members:
                 { _id: req.body.user_id }
         }};
 

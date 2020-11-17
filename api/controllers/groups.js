@@ -112,3 +112,19 @@ module.exports.userLeaveGroup = async function (req, res) {
 
     return res.json({ success: true, Group: newGroup, User: newUser });
 }
+
+module.exports.addMixtape = async function (req, res) {
+    let update_query = { $push: { mixtapes:
+                {
+                    _id: req.body.mixtape_id,
+                    name: req.body.mixtape_name
+                }
+        }};
+
+    let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query,{new: true});
+    if (newGroup == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Groups found.`});
+    }
+
+    return res.json({ success: true, Group: newGroup });
+}

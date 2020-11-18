@@ -28,7 +28,7 @@ module.exports.createBranch = async function (req, res) {
         $push: {user_branches:
                 {
                     branch_id: newBranch._id,
-                    branch_name: newBranch.name
+                    branch_name: newBranch.name,
                     created_by: {
                         user_id: newBranch.created_by.user_id,
                         name: newBranch.created_by.name

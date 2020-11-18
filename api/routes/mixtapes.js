@@ -1,5 +1,10 @@
 /**
  * Contains all api functions for mixtape related routes
+ * createMixtape
+ * deleteMixtape
+ * getMixtape
+ * addTrack
+ * removeTrack
  */
 
 const express = require("express");

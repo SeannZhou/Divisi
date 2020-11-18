@@ -11,11 +11,15 @@ const ArtistSchema = new Schema({
         type: Array,
         required: false
     },
-    likes: {
+    artist_cover: {
+        type: String,
+        required: false
+    },
+    who_likes: {
         type: Array,
         required: false
     },
-    total_likes: {
+    num_of_likes: {
         type: Number,
         required: false
     }

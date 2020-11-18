@@ -15,10 +15,6 @@ const ArtistSchema = new Schema({
         type: String,
         required: false
     },
-    who_likes: {
-        type: Array,
-        required: false
-    },
     num_of_likes: {
         type: Number,
         required: false

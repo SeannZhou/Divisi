@@ -25,7 +25,15 @@ module.exports.createBranch = async function (req, res) {
     }
 
     let updatedMixtape = await Mixtape.updateOne({"_id": req.body.mixtape_id}, {
-        $push: {user_branches: { branch_id: newBranch._id, branch_name: newBranch.name }}
+        $push: {user_branches:
+                {
+                    branch_id: newBranch._id,
+                    branch_name: newBranch.name
+                    created_by: {
+                        user_id: newBranch.created_by.user_id,
+                        name: newBranch.created_by.name
+                    }
+                }}
     });
     if (updatedMixtape == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `there are no mixtapes found with id ${req.body.mixtape_id}`});
@@ -37,7 +45,7 @@ module.exports.createBranch = async function (req, res) {
 module.exports.getBranch = function (req, res) {
     Branch.findOne({_id: req.params.id}).then(branch => {
         if (branch){
-            return res.status(httpStatus.OK).json({user: branch});
+            return res.status(httpStatus.OK).json({branch: branch});
         } else {
             return res.status(httpStatus.NOT_FOUND).json({ error: `There are no users found.`});
         }

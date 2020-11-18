@@ -113,7 +113,7 @@ module.exports.getUser = async function (req, res) {
     let user = await getUserHelper(req.params.id);
 
     if (user != null) {
-        return res.json({user: user});
+        return res.status(httpStatus.OK).json({user: user});
     } else {
         return res.status(httpStatus.NOT_FOUND).json({error: `There are no users found.`});
     }
@@ -122,7 +122,7 @@ module.exports.getUser = async function (req, res) {
 module.exports.deleteUser = function (req, res) {
     User.findOneAndDelete({ "_id": req.params.id }).then(user => {
         if (user) {
-            return res.json({ user: user });
+            return res.status(httpStatus.OK).json({ user: user });
         } else {
             return res.status(httpStatus.BAD_REQUEST).json({ email: `user with id ${req.params.id} does not exist`});
         }
@@ -132,7 +132,7 @@ module.exports.deleteUser = function (req, res) {
 module.exports.updateUser = function (req, res) {
     User.findOneAndUpdate({"_id": req.params.id}, {$set: req.body}, {new: true}).then(user => {
         if (user) {
-            return res.json({ user: user });
+            return res.status(httpStatus.OK).json({ user: user });
         } else {
             return res.status(httpStatus.BAD_REQUEST).json({ email: `user with id ${req.params.id} does not exist`});
         }

@@ -5,18 +5,8 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const Group = require("../models/Group");
 
-// load controllers
-// const { getUserById } = require("../controllers/users");
-
-// load input validation
-const { validateMixtapeInput, validateTrackInput } = require("../utils/mixtapes");
-
 
 module.exports.createGroup = async function (req, res) {
-    // const { errors, isValid } = validateMixtapeInput(req.body);    // Group validation
-    // if (!isValid) return res.status(httpStatus.BAD_REQUEST).json(errors)
-
-
     // Creat group and add branch obj inside
     const newGroup = new Group({
         _id: mongoose.Types.ObjectId(),
@@ -32,7 +22,7 @@ module.exports.createGroup = async function (req, res) {
             name: req.body.user.username
         },
         share_link: "",
-        num_of_likes: 0,
+        num_of_likes: 0
     });
 
     let retval = await newGroup.save();

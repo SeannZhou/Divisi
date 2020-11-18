@@ -29,12 +29,14 @@ mongoose.connection.once('open', function () {
     require("./config/passport")(passport);
 });
 
+const branches = require('./api/routes/branches');
 const groups = require('./api/routes/groups');
 const mixtapes = require('./api/routes/mixtapes');
 const users = require('./api/routes/users');
 const apis = require('./api/routes/api');
 const server = http.createServer(app);
 
+app.use("/api/branches", branches);
 app.use("/api/groups", groups);
 app.use("/api/mixtapes", mixtapes);
 app.use("/api/users", users);

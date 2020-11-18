@@ -128,3 +128,14 @@ module.exports.addMixtape = async function (req, res) {
 
     return res.status(httpStatus.OK).json({ Group: newGroup });
 }
+
+
+module.exports.updateGroup = function (req, res) {
+    Group.findOneAndUpdate({"_id": req.params.id}, {$set: req.body}, {new: true}).then(group => {
+        if (group) {
+            return res.status(httpStatus.OK).json({ group: group });
+        } else {
+            return res.status(httpStatus.BAD_REQUEST).json({ email: `group with id ${req.params.id} does not exist`});
+        }
+    })
+}

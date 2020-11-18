@@ -150,3 +150,14 @@ module.exports.removeTrack = async function (req, res) {
 
     return res.json({ success: true, Mixtape: newMixtape });
 }
+
+module.exports.updateMixtape = function (req, res) {
+    Mixtape.findOneAndUpdate({"_id": req.params.id}, {$set: req.body}, {new: true}).then(mixtape => {
+        if (mixtape) {
+            return res.status(httpStatus.OK).json({ mixtape: mixtape });
+        } else {
+            return res.status(httpStatus.BAD_REQUEST).json({ email: `mixtape with id ${req.params.id} does not exist`});
+        }
+    })
+}
+

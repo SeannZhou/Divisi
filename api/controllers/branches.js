@@ -28,7 +28,7 @@ module.exports.createBranch = async function (req, res) {
         $push: {user_branches:
                 {
                     branch_id: newBranch._id,
-                    branch_name: newBranch.name
+                    branch_name: newBranch.name,
                     created_by: {
                         user_id: newBranch.created_by.user_id,
                         name: newBranch.created_by.name
@@ -42,13 +42,32 @@ module.exports.createBranch = async function (req, res) {
     return res.status(httpStatus.OK).json({ newBranch });
 }
 
-module.exports.getBranch = function (req, res) {
-    Branch.findOne({_id: req.params.id}).then(branch => {
-        if (branch){
-            return res.status(httpStatus.OK).json({branch: branch});
-        } else {
-            return res.status(httpStatus.NOT_FOUND).json({ error: `There are no users found.`});
-        }
-    })
+async function getBranchHelper(id) {
+    let branch = await Branch.findOne({"_id": id}).catch( (err) => {return null} );
+    return branch;
 }
 
+module.exports.getBranch = async function (req, res) {
+    let branch = await getBranchHelper(req.params.id);
+
+    if (branch != null) {
+        return res.status(httpStatus.OK).json({branch: branch});
+    } else {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `Could not find branch.`});
+    }
+}
+
+module.exports.addTrack = async function (req, res) {
+    // Get branch
+    let branch = await getBranchHelper(req.params.id);
+    if (branch == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Branches found.`});
+    }
+
+    let newBranch = await Branch.findOneAndUpdate({"_id": req.params.id}, {$push: {"tracks": req.body.track } }, {new: true});
+    if (newBranch == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Branches found.`});
+    }
+
+    return res.status(httpStatus.OK).json({ Branch: newBranch });
+}

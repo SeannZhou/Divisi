@@ -71,7 +71,6 @@ module.exports.getMixtape = async function (req, res) {
 }
 
 module.exports.addTrack = async function (req, res) {
-
     // Get mixtape
     var mixtape = await getMixtapeHelper(req.params.id);
     if (mixtape == null) {
@@ -98,7 +97,7 @@ module.exports.addTrack = async function (req, res) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
     }
 
-    return res.json({ success: true, Mixtape: newMixtape });
+    return res.status(httpStatus.OK).json({ Mixtape: newMixtape });
 }
 
 module.exports.removeTrack = async function (req, res) {
@@ -137,7 +136,7 @@ module.exports.removeTrack = async function (req, res) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
     }
 
-    return res.json({ success: true, Mixtape: newMixtape });
+    return res.status(httpStatus.OK).json({ Mixtape: newMixtape });
 }
 
 module.exports.updateMixtape = function (req, res) {

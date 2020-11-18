@@ -9,9 +9,10 @@ const passport = require("passport");
 
 // load controllers
 const controller = require("../controllers/branches");
-const { createBranch, getBranch } = controller;
+const { createBranch, getBranch, addTrack } = controller;
 
 router.post("/branch", createBranch);
 router.get('/branch/:id', getBranch);
+router.patch('/branch/:id/addtrack', addTrack);
 
 module.exports = router;

@@ -1,5 +1,10 @@
 /**
  * Contains all api functions for group related routes
+ * createGroup
+ * getGroup
+ * userJoinsGroup
+ * userLeaveGroup
+ * addMixtape
  */
 
 const express = require("express");

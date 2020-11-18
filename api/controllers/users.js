@@ -102,19 +102,6 @@ module.exports.loginUser = function (req, res) {
     });
 }
 
-module.exports.updateNameByEmail = function (req, res) {
-    let newName = req.params.username;
-    if (newName) {
-        User.updateOne({"_id": req.params.id}, {username: newName}).then(promise => {
-            if (promise.n == 1) {
-                return res.json({usobjecter: promise});
-            } else {
-                return res.status(httpStatus.NOT_FOUND).json({ error: `User with email ${req.params.email} does not exist`});
-            }
-        })
-    }
-}
-
 async function getUserHelper(id) {
     let user = await User.findOne({"_id": id}).catch( (err) => {return null} );
     return user;

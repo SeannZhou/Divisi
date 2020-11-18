@@ -12,16 +12,14 @@ const BranchSchema = new Schema({
         required: true
     },
     created_by: {
-        type: String,
-        required: true
+        user_id: { type: String },
+        name: { type: String }
     },
     share_link: {
-        type: String,
-        required: false
+        type: String
     },
     tracks: {
-        type: Array,
-        required: false
+        type: Array
     }
 });
 

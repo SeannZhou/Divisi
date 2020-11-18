@@ -5,14 +5,8 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const Mixtape = require("../models/Mixtape");
 
-// load input validation
-const { validateMixtapeInput, validateTrackInput } = require("../utils/mixtapes");
-
 
 module.exports.createMixtape = async function (req, res) {
-    // const { errors, isValid } = validateMixtapeInput(req.body);    // Mixtape validation
-    // if (!isValid) return res.status(httpStatus.BAD_REQUEST).json(errors)
-
     // Creat mixtape and add branch obj inside
     const newMixtape = new Mixtape({
         _id: mongoose.Types.ObjectId(),
@@ -77,8 +71,6 @@ module.exports.getMixtape = async function (req, res) {
 }
 
 module.exports.addTrack = async function (req, res) {
-    // const { errors, isValid } = validateTrackInput(req.body.track);    // Mixtape validation
-    // if (!isValid) return res.status(400).json(errors)
 
     // Get mixtape
     var mixtape = await getMixtapeHelper(req.params.id);
@@ -110,9 +102,6 @@ module.exports.addTrack = async function (req, res) {
 }
 
 module.exports.removeTrack = async function (req, res) {
-    // const { errors, isValid } = validateTrackInput(req.body.track);    // Mixtape validation
-    // if (!isValid) return res.status(400).json(errors)
-
     // Get mixtape
     var mixtape = await getMixtapeHelper(req.params.id);
     if (mixtape == null) {

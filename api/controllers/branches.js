@@ -15,6 +15,10 @@ module.exports.createBranch = async function (req, res) {
             user_id: req.body.created_by.user_id,
             name: req.body.created_by.name
         },
+        branched_from: {
+            mixtape_id: req.body.branched_from.mixtape_id,
+            name: req.body.branched_from.name
+        },
         share_link: "",
         tracks: []
     });
@@ -24,7 +28,7 @@ module.exports.createBranch = async function (req, res) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `Branch could not be saved.`});
     }
 
-    let updatedMixtape = await Mixtape.updateOne({"_id": req.body.mixtape_id}, {
+    let updatedMixtape = await Mixtape.updateOne({"_id": req.body.branched_from.mixtape_id}, {
         $push: {user_branches:
                 {
                     branch_id: newBranch._id,

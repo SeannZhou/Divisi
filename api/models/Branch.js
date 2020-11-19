@@ -15,6 +15,10 @@ const BranchSchema = new Schema({
         user_id: { type: String },
         name: { type: String }
     },
+    branched_from: {
+        mixtape_id: { type: String },
+        name: { type: String }
+    },
     share_link: {
         type: String
     },

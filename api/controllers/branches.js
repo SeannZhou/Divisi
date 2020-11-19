@@ -16,7 +16,7 @@ module.exports.createBranch = async function (req, res) {
             name: req.body.created_by.name
         },
         branched_from: {
-            mixtape_id: req.body.branched_from.user_id,
+            mixtape_id: req.body.branched_from.mixtape_id,
             name: req.body.branched_from.name
         },
         share_link: "",

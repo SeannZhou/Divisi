@@ -27,17 +27,17 @@ module.exports.createGroup = async function (req, res) {
 
     let retval = await newGroup.save();
     if (retval == null){
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `Group could not be saved.`});
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `group could not be saved.`});
     }
 
     let updatedUser = await User.updateOne({"_id": req.body.user._id}, {
         $push: {groups: { _id: newGroup._id, name: newGroup.name }}
     });
     if (updatedUser == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no users found with id ${req.body.user._id}`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.user._id} does not exist`});
     }
 
-    return res.status(httpStatus.OK).json({ newGroup });
+    return res.status(httpStatus.OK).json({ group: newGroup });
 }
 
 async function getGroupHelper(id) {
@@ -51,9 +51,9 @@ module.exports.getGroup = async function (req, res) {
     let group = await getGroupHelper(req.params.id);
 
     if (group != null) {
-        return res.status(httpStatus.OK).json({ Group: group });
+        return res.status(httpStatus.OK).json({ group: group });
     } else {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no groups found with id ${req.params.id}`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
     }
 }
 
@@ -66,7 +66,7 @@ module.exports.userJoinsGroup = async function (req, res) {
         }};
     let newUser = await User.findOneAndUpdate({"_id": req.body.user._id}, update_query, {new: true});
     if (newUser == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no users found with id ${req.body.user._id}`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.user._id} does not exist`});
     }
     update_query = { $push: { members:
                 {
@@ -77,10 +77,10 @@ module.exports.userJoinsGroup = async function (req, res) {
 
     let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query,{new: true});
     if (newGroup == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no groups found with id ${req.params.id}`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
     }
 
-    return res.status(httpStatus.OK).json({ Group: newGroup, User: newUser });
+    return res.status(httpStatus.OK).json({ group: newGroup, user: newUser });
 }
 
 module.exports.userLeaveGroup = async function (req, res) {
@@ -89,7 +89,7 @@ module.exports.userLeaveGroup = async function (req, res) {
         }};
     let newUser = await User.findOneAndUpdate({"_id": req.body.user_id}, update_query, {new: true});
     if (newUser == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no users found with id ${req.body.user_id}`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.user_id} does not exist`});
     }
     update_query = { $pull: { members:
                 { _id: req.body.user_id }
@@ -97,10 +97,10 @@ module.exports.userLeaveGroup = async function (req, res) {
 
     let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query,{new: true});
     if (newGroup == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no groups found with id ${req.params.id}`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
     }
 
-    return res.status(httpStatus.OK).json({ Group: newGroup, User: newUser });
+    return res.status(httpStatus.OK).json({ group: newGroup, user: newUser });
 }
 
 module.exports.addMixtape = async function (req, res) {
@@ -113,10 +113,10 @@ module.exports.addMixtape = async function (req, res) {
 
     let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query,{new: true});
     if (newGroup == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no groups found with id ${req.params.id}`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
     }
 
-    return res.status(httpStatus.OK).json({ Group: newGroup });
+    return res.status(httpStatus.OK).json({ group: newGroup });
 }
 
 

@@ -2,18 +2,18 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const httpStatus = require('http-status');
 const mongoose = require("mongoose");
- 
+
 // load models
 const User = require("../models/User");
- 
+
 // load input validation
 const validateRegisterInput = require("../utils/register");
 const validateLoginInput = require("../utils/login");
- 
+
 module.exports.registerUser = function (req, res) {
     const { errors, isValid } = validateRegisterInput(req.body);    // Form validation
     if (!isValid) return res.status(400).json(errors)
- 
+
     User.findOne({ email: req.body.email }).then(user => {
         if (user) {
             return res.status(400).json({ email: "Email already exists" });
@@ -118,7 +118,7 @@ module.exports.getUser = async function (req, res) {
         return res.status(httpStatus.NOT_FOUND).json({error: `There are no users found.`});
     }
 }
- 
+
 module.exports.deleteUser = function (req, res) {
     User.findOneAndDelete({ "_id": req.params.id }).then(user => {
         if (user) {
@@ -137,4 +137,19 @@ module.exports.updateUser = function (req, res) {
             return res.status(httpStatus.BAD_REQUEST).json({ email: `user with id ${req.params.id} does not exist`});
         }
     })
+}
+
+module.exports.addFriend = async (req, res) => {
+    let friend = await getUserHelper(req.params.id);
+    let user = req.body.user;
+    if (user.friends.filter(function(e) { return e._id === req.params.id; }).length > 0) {
+        return res.status(httpStatus.BAD_REQUEST).json({ error: `User ${friend.username} is already a friend of user ${user.username}`})
+    }
+    let updatedUser = await User.updateOne({"_id": user._id}, {
+        $push: {friends: { _id: friend._id, name: friend.username }}
+    });
+    let updatedFriend = await User.updateOne({"_id": friend._id}, {
+        $push: {friends: { _id: user._id, name: user.username }}
+    });
+    return res.status(httpStatus.OK).json({user: updatedUser, friend: updatedFriend});
 }

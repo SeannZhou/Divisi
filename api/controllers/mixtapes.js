@@ -28,29 +28,29 @@ module.exports.createMixtape = async function (req, res) {
 
     let retval = await newMixtape.save();
     if (retval == null){
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `Mixtape could not be saved.`});
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `mixtape could not be saved.`});
     }
     let updatedUser = await User.updateOne({"_id": req.body.user._id}, {
         $push: {mixtapes: { _id: newMixtape._id, name: newMixtape.name }}
     });
     if (updatedUser == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no user found.`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.user._id} does not exist`});
     }
 
-    return res.json(newMixtape);
+    return res.status(httpStatus.CREATED).json({ mixtape: newMixtape });
 }
 
 module.exports.deleteMixtape = async function (req, res) {
     let mixtape = await Mixtape.findOneAndDelete({ "_id": req.params.id });
     if (mixtape == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ email: `Mixtape with id ${req.params.id} does not exist`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.id} does not exist`});
     }
     let user = await User.update({ _id: req.body.user_id }, { $pull: { "mixtapes": { "_id": req.params.id } }});
     if (user == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ email: `User with id ${req.body.user_id} does not exist`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.user_id} does not exist`});
     }
 
-    return res.json({ mixtape: mixtape });
+    return res.status(httpStatus.OK).json({ mixtape: mixtape });
 }
 
 async function getMixtapeHelper(id) {
@@ -64,17 +64,17 @@ module.exports.getMixtape = async function (req, res) {
     let mixtape = await getMixtapeHelper(req.params.id);
 
     if (mixtape != null) {
-        return res.json({mixtape: mixtape});
+        return res.status(httpStatus.OK).json({ mixtape: mixtape });
     } else {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `Could not find mixtape.`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.id} does not exist`});
     }
 }
 
 module.exports.addTrack = async function (req, res) {
     // Get mixtape
-    var mixtape = await getMixtapeHelper(req.params.id);
+    let mixtape = await getMixtapeHelper(req.params.id);
     if (mixtape == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.id} does not exist`});
     }
 
     // Updating mixtape data
@@ -94,17 +94,17 @@ module.exports.addTrack = async function (req, res) {
 
     let newMixtape = await Mixtape.findOneAndUpdate({"_id": req.params.id}, update_query, {new: true});
     if (newMixtape == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.id} does not exist`});
     }
 
-    return res.status(httpStatus.OK).json({ Mixtape: newMixtape });
+    return res.status(httpStatus.OK).json({ mixtape: newMixtape });
 }
 
 module.exports.removeTrack = async function (req, res) {
     // Get mixtape
     var mixtape = await getMixtapeHelper(req.params.id);
     if (mixtape == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.id} does not exist`});
     }
     if (mixtape.num_of_songs === 0) {
         return res.status(httpStatus.BAD_REQUEST).json({ error: `There are no tracks to remove.`});
@@ -133,10 +133,10 @@ module.exports.removeTrack = async function (req, res) {
     };
     let newMixtape = await Mixtape.findOneAndUpdate({"_id": req.params.id}, update_query, {new: true});
     if (newMixtape == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Mixtapes found.`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.id} does not exist`});
     }
 
-    return res.status(httpStatus.OK).json({ Mixtape: newMixtape });
+    return res.status(httpStatus.OK).json({ mixtape: newMixtape });
 }
 
 module.exports.updateMixtape = function (req, res) {
@@ -144,7 +144,7 @@ module.exports.updateMixtape = function (req, res) {
         if (mixtape) {
             return res.status(httpStatus.OK).json({ mixtape: mixtape });
         } else {
-            return res.status(httpStatus.BAD_REQUEST).json({ email: `mixtape with id ${req.params.id} does not exist`});
+            return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.id} does not exist`});
         }
     })
 }

@@ -3,6 +3,7 @@ const httpStatus = require('http-status');
 // load models
 const Track = require("../models/Track");
 const Artist = require("../models/Artist");
+const Album = require("../models/Album");
 const User = require("../models/User");
 const Group = require("../models/Group");
 const Mixtape = require("../models/Mixtape");
@@ -29,6 +30,16 @@ module.exports.getArtist = function (req, res) {
     })
 }
 
+module.exports.getAlbum = function (req, res) {
+    console.log(req.params.id);
+    Album.findById(req.params.id).then(album => {
+        if (album) {
+            return res.status(httpStatus.OK).json({ album: album });
+        } else {
+            return res.status(httpStatus.NOT_FOUND).json({ error: `there are no album found with id ${req.params.id}` });
+        }
+    })
+}
 
 module.exports.search = async (req, res) => {
     let searchName = req.query.name;

@@ -12,11 +12,11 @@ const validateLoginInput = require("../utils/login");
 
 module.exports.registerUser = function (req, res) {
     const { errors, isValid } = validateRegisterInput(req.body);    // Form validation
-    if (!isValid) return res.status(400).json(errors)
+    if (!isValid) return res.status(httpStatus.BAD_REQUEST).json(errors)
 
     User.findOne({ email: req.body.email }).then(user => {
         if (user) {
-            return res.status(400).json({ email: "Email already exists" });
+            return res.status(httpStatus.BAD_REQUEST).json({ email: "Email already exists" });
         } else {
             const newUser = new User({
                 _id: mongoose.Types.ObjectId(),
@@ -61,7 +61,7 @@ module.exports.loginUser = function (req, res) {
     User.findOne({ email }).then(user => {
         // Check if user exists
         if (!user) {
-            return res.status(httpStatus.NOT_FOUND).json({ emailnotfound: "Email not found" });
+            return res.status(httpStatus.NOT_FOUND).json({ error: `user with email ${email} does not exist`});
         }
         // Check password
         bcrypt.compare(password, user.password).then(isMatch => {
@@ -113,9 +113,9 @@ module.exports.getUser = async function (req, res) {
     let user = await getUserHelper(req.params.id);
 
     if (user != null) {
-        return res.status(httpStatus.OK).json({user: user});
+        return res.status(httpStatus.OK).json({ user: user });
     } else {
-        return res.status(httpStatus.NOT_FOUND).json({error: `There are no users found.`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.id} does not exist`});
     }
 }
 
@@ -124,7 +124,7 @@ module.exports.deleteUser = function (req, res) {
         if (user) {
             return res.status(httpStatus.OK).json({ user: user });
         } else {
-            return res.status(httpStatus.BAD_REQUEST).json({ email: `user with id ${req.params.id} does not exist`});
+            return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.id} does not exist`});
         }
     })
 }
@@ -134,7 +134,7 @@ module.exports.updateUser = function (req, res) {
         if (user) {
             return res.status(httpStatus.OK).json({ user: user });
         } else {
-            return res.status(httpStatus.BAD_REQUEST).json({ email: `user with id ${req.params.id} does not exist`});
+            return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.id} does not exist`});
         }
     })
 }

@@ -16,7 +16,7 @@ module.exports.registerUser = function (req, res) {
 
     User.findOne({ email: req.body.email }).then(user => {
         if (user) {
-            return res.status(httpStatus.BAD_REQUEST).json({ email: "Email already exists" });
+            return res.status(httpStatus.BAD_REQUEST).json(`User with email ${req.body.email} already exist`);
         } else {
             const newUser = new User({
                 _id: mongoose.Types.ObjectId(),
@@ -52,6 +52,7 @@ module.exports.loginUser = function (req, res) {
     // Form validation
     const { errors, isValid } = validateLoginInput(req.body);
     // Check validation
+    console.log(errors, isValid);
     if (!isValid) {
         return res.status(400).json(errors);
     }
@@ -95,8 +96,8 @@ module.exports.loginUser = function (req, res) {
                 );
             } else {
                 return res
-                    .status(400)
-                    .json({ passwordincorrect: "Password incorrect" });
+                    .status(httpStatus.BAD_REQUEST)
+                    .json({ error: "Password incorrect" });
             }
         });
     });
@@ -140,16 +141,15 @@ module.exports.updateUser = function (req, res) {
 }
 
 module.exports.addFriend = async (req, res) => {
+    if(req.params.id == req.body.user._id){
+        return res.status(httpStatus.BAD_REQUEST).json({ error: "You cannot friend yourself"});
+    }
     let friend = await getUserHelper(req.params.id);
     let user = req.body.user;
-    if (user.friends.filter(function(e) { return e._id === req.params.id; }).length > 0) {
+    if(user.friends.some(e => e._id === user._id) || friend.friends.some(e => e._id === user._id)){
         return res.status(httpStatus.BAD_REQUEST).json({ error: `User ${friend.username} is already a friend of user ${user.username}`})
     }
-    let updatedUser = await User.updateOne({"_id": user._id}, {
-        $push: {friends: { _id: friend._id, name: friend.username }}
-    });
-    let updatedFriend = await User.updateOne({"_id": friend._id}, {
-        $push: {friends: { _id: user._id, name: user.username }}
-    });
-    return res.status(httpStatus.OK).json({user: updatedUser, friend: updatedFriend});
+    await User.updateOne({"_id": friend._id}, { $push: {friends: { _id: user._id, name: user.username }}});
+    let updatedUser = await User.findOneAndUpdate({"_id": user._id}, {$push: {friends: { _id: friend._id, name: friend.username }}}, { $new: true});
+    return res.status(httpStatus.OK).json({user: updatedUser});
 }

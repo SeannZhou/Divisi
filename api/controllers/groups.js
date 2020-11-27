@@ -84,6 +84,7 @@ module.exports.userJoinsGroup = async function (req, res) {
 }
 
 module.exports.userLeaveGroup = async function (req, res) {
+    // check required fields are in the payload
     let update_query = { $pull: { groups:
                 { _id: req.params.id }
         }};

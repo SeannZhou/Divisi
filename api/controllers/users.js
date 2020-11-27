@@ -69,17 +69,17 @@ module.exports.loginUser = function (req, res) {
             if (isMatch) {
                 // User matched
                 // Create JWT Payload
-                const payload = {
-                    id: user.id,
-                    username: user.username,
-                    mixtapes: user.mixtapes,
-                    gender: user.gender,
-                    age: user.age,
-                    email: user.email,
-                    groups: user.groups
-
-                };
-        // Sign token
+                    const payload = {
+                        _id: user.id,
+                        username: user.username,
+                        mixtapes: user.mixtapes,
+                        gender: user.gender,
+                        age: user.age,
+                        email: user.email,
+                        groups: user.groups,
+                        friends: user.friends
+                    };
+                // Sign token
                 jwt.sign(
                     payload,
                     'secret',
@@ -150,6 +150,7 @@ module.exports.addFriend = async (req, res) => {
         return res.status(httpStatus.BAD_REQUEST).json({ error: `User ${friend.username} is already a friend of user ${user.username}`})
     }
     await User.updateOne({"_id": friend._id}, { $push: {friends: { _id: user._id, name: user.username }}});
-    let updatedUser = await User.findOneAndUpdate({"_id": user._id}, {$push: {friends: { _id: friend._id, name: friend.username }}}, { $new: true});
-    return res.status(httpStatus.OK).json({user: updatedUser});
+    User.findOneAndUpdate({"_id": user._id}, {$push: {friends: { _id: friend._id, name: friend.username }}}, {new: true}).then(updatedUser => {
+        return res.status(httpStatus.OK).json({user: updatedUser});
+    })
 }

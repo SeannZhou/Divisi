@@ -31,6 +31,7 @@ module.exports.registerUser = function (req, res) {
                 gender: "",
                 country: "",
                 age: "",
+                liked_tracks: []
             });
             console.log(newUser)
             // Hash password before saving in database
@@ -72,12 +73,13 @@ module.exports.loginUser = function (req, res) {
                     const payload = {
                         _id: user.id,
                         username: user.username,
+                        email: user.email,
                         mixtapes: user.mixtapes,
                         gender: user.gender,
                         age: user.age,
-                        email: user.email,
                         groups: user.groups,
-                        friends: user.friends
+                        friends: user.friends,
+                        liked_tracks: user.liked_tracks
                     };
                 // Sign token
                 jwt.sign(

@@ -50,6 +50,10 @@ const UserSchema = new Schema({
     age: {
         type: Number,
         required: false
+    },
+    liked_tracks: {
+        type: Array,
+        required: false
     }
 });
 

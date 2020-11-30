@@ -41,13 +41,13 @@ module.exports.createMixtape = async function (req, res) {
 }
 
 module.exports.deleteMixtape = async function (req, res) {
-    let mixtape = await Mixtape.findOneAndDelete({ "_id": req.params.id });
+    let mixtape = await Mixtape.findOneAndDelete({ "_id": req.params.mixtape_id });
     if (mixtape == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.id} does not exist`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.mixtape_id} does not exist`});
     }
-    let user = await User.update({ _id: req.body.user_id }, { $pull: { "mixtapes": { "_id": req.params.id } }});
+    let user = await User.update({ _id: req.params.user_id }, { $pull: { "mixtapes": { "_id": req.params.mixtape_id } }});
     if (user == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.user_id} does not exist`});
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.user_id} does not exist`});
     }
 
     return res.status(httpStatus.OK).json({ mixtape: mixtape });

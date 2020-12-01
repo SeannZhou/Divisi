@@ -7,7 +7,7 @@ const Mixtape = require("../models/Mixtape");
 
 
 module.exports.createBranch = async function (req, res) {
-    // Creat group and add branch obj inside
+    // Create group and add branch obj inside
     const newBranch = new Branch({
         _id: mongoose.Types.ObjectId(),
         name: req.body.name,

@@ -15,7 +15,7 @@ const controller = require("../controllers/mixtapes");
 const { createMixtape, deleteMixtape, getMixtape, addTrack, removeTrack, updateMixtape } = controller;
 
 router.post("/mixtape", createMixtape);
-router.delete('/mixtape/:id', deleteMixtape);
+router.delete('/mixtape/:mixtape_id/delete/:user_id', deleteMixtape);
 router.get('/mixtape/:id', getMixtape);
 router.patch('/mixtape/:id/addtrack', addTrack);
 router.patch('/mixtape/:id/removetrack', removeTrack);

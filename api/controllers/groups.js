@@ -120,6 +120,20 @@ module.exports.addMixtape = async function (req, res) {
     return res.status(httpStatus.OK).json({ group: newGroup });
 }
 
+module.exports.removeMixtape = async function (req, res) {
+    let update_query = { $pull: { mixtapes:
+                {
+                    _id: req.params.mixtape_id
+                }
+        }};
+
+    let newGroup = await Group.findOneAndUpdate({"_id": req.params.group_id}, update_query,{new: true});
+    if (newGroup == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.group_id} does not exist`});
+    }
+
+    return res.status(httpStatus.OK).json({ group: newGroup });
+}
 
 module.exports.updateGroup = function (req, res) {
     Group.findOneAndUpdate({"_id": req.params.id}, {$set: req.body}, {new: true}).then(group => {

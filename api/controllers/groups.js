@@ -112,7 +112,7 @@ module.exports.addMixtape = async function (req, res) {
                 }
         }};
 
-    let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query,{new: true});
+    let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query, {new: true});
     if (newGroup == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
     }
@@ -127,7 +127,7 @@ module.exports.removeMixtape = async function (req, res) {
                 }
         }};
 
-    let newGroup = await Group.findOneAndUpdate({"_id": req.params.group_id}, update_query,{new: true});
+    let newGroup = await Group.findOneAndUpdate({"_id": req.params.group_id}, update_query, {new: true});
     if (newGroup == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.group_id} does not exist`});
     }
@@ -143,4 +143,38 @@ module.exports.updateGroup = function (req, res) {
             return res.status(httpStatus.BAD_REQUEST).json({ email: `group with id ${req.params.id} does not exist`});
         }
     })
+}
+
+module.exports.deleteGroup = async function (req, res) {
+    // Invalid requests handled
+    let group = await getGroupHelper(req.params.group_id);
+    if (group == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.group_id} does not exist`});
+    }
+    if (group.created_by.user_id != req.params.user_id) {
+        return res.status(httpStatus.FORBIDDEN).json({ error: `user with id ${req.params.user_id} is forbidden access`});
+    }
+    let user = await User.findOne( { _id: req.params.user_id } );
+    if (user == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.user_id} does not exist`});
+    }
+
+    // Deleting group and removing group from user groups
+    let deleteGroup = await Group.findOneAndDelete({ "_id": req.params.group_id });
+    if (deleteGroup == null) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `group could not be deleted.`});
+    }
+
+    group.members.push(req.params.user_id);     // Add owner to members
+    let groupMembers = group.members;
+    let removeUserGroups = await User.update(
+        { _id: { $in: groupMembers } },
+        { $pull: { groups: { _id: group._id } } },
+        { multi: true }
+    );
+    if (removeUserGroups == null) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `Updating group members failed.`});
+    }
+
+    return res.status(httpStatus.OK).json({ user: user });
 }

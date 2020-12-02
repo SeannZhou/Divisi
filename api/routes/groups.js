@@ -12,7 +12,7 @@ const router = express.Router();
 
 // load controllers
 const controller = require("../controllers/groups");
-const { createGroup, getGroup, userJoinsGroup, userLeaveGroup, addMixtape, removeMixtape, updateGroup } = controller;
+const { createGroup, getGroup, userJoinsGroup, userLeaveGroup, addMixtape, removeMixtape, updateGroup, deleteGroup } = controller;
 
 router.post("/group", createGroup);
 router.get('/group/:id', getGroup);
@@ -21,5 +21,6 @@ router.patch("/group/:id/leave", userLeaveGroup);
 router.patch("/group/:id/addMixtape", addMixtape);
 router.patch("/group/:group_id/removeMixtape/:mixtape_id", removeMixtape);
 router.patch("/group/:id", updateGroup);
+router.delete("/group/:group_id/user/:user_id", deleteGroup);
 
 module.exports = router;

@@ -75,3 +75,18 @@ module.exports.addTrack = async function (req, res) {
 
     return res.status(httpStatus.OK).json({ branch: newBranch });
 }
+
+module.exports.removeTrack = async function (req, res) {
+   let update_query = { $pull: { tracks:
+               {
+                   _id: req.params.track_id
+               }
+       }};
+
+   let newBranch = await Branch.findOneAndUpdate({"_id": req.params.branch_id}, update_query,{new: true});
+   if (newBranch == null) {
+       return res.status(httpStatus.NOT_FOUND).json({ error: `branch with id ${req.params.branch_id} does not exist`});
+   }
+
+   return res.status(httpStatus.OK).json({ branch: newBranch });
+}

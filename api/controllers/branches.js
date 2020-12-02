@@ -20,7 +20,7 @@ module.exports.createBranch = async function (req, res) {
             name: req.body.branched_from.name
         },
         share_link: "",
-        tracks: []
+        tracks: req.body.tracks
     });
 
     let retval = await newBranch.save();

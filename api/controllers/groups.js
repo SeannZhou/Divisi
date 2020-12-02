@@ -146,28 +146,35 @@ module.exports.updateGroup = function (req, res) {
 }
 
 module.exports.deleteGroup = async function (req, res) {
+    // Invalid requests handled
     let group = await getGroupHelper(req.params.group_id);
     if (group == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.group_id} does not exist`});
     }
-    if (group.created_by.user_id != req.params.owner_id) {
-        return res.status(httpStatus.FORBIDDEN).json({ error: `user with id ${req.params.owner_id} is forbidden access`});
+    if (group.created_by.user_id != req.params.user_id) {
+        return res.status(httpStatus.FORBIDDEN).json({ error: `user with id ${req.params.user_id} is forbidden access`});
+    }
+    let user = await User.findOne( { _id: req.params.user_id } );
+    if (user == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.user_id} does not exist`});
     }
 
+    // Deleting group and removing group from user groups
     let deleteGroup = await Group.findOneAndDelete({ "_id": req.params.group_id });
     if (deleteGroup == null) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `group could not be deleted.`});
     }
 
-    deleteGroup.members.push(req.params.owner_id);
+    group.members.push(req.params.user_id);     // Add owner to members
+    let groupMembers = group.members;
     let removeUserGroups = await User.update(
-        { _id: { $in: deleteGroup.members } },
-        { $pull: { groups: { _id: deleteGroup._id } } },
+        { _id: { $in: groupMembers } },
+        { $pull: { groups: { _id: group._id } } },
         { multi: true }
     );
     if (removeUserGroups == null) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `Updating group members failed.`});
     }
 
-    return res.status(httpStatus.OK).json({ group: group });
+    return res.status(httpStatus.OK).json({ user: user });
 }

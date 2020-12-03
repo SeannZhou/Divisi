@@ -23,6 +23,10 @@ const UserSchema = new Schema({
         type: String,
         required: false
     },
+    branches: {
+            type: Array,
+            required: false
+    },
     mixtapes: {
         type: Array,
         required: false

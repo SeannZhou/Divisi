@@ -41,14 +41,20 @@ module.exports.createMixtape = async function (req, res) {
 }
 
 module.exports.deleteMixtape = async function (req, res) {
+    // Delete mixtape
     let mixtape = await Mixtape.findOneAndDelete({ "_id": req.params.mixtape_id });
     if (mixtape == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.mixtape_id} does not exist`});
     }
+    // Remove the mixtape from the user
     let user = await User.update({ _id: req.params.user_id }, { $pull: { "mixtapes": { "_id": req.params.mixtape_id } }});
     if (user == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.user_id} does not exist`});
     }
+    // Delete the branches on the mixtape
+        // Branch.findOneAndDelete(mixtape.user_branches[0].branch_id)
+        // Delete branch in user obj
+            // User.update(branch.created_by.user_id, $pull : { branch._id})
 
     return res.status(httpStatus.OK).json({ mixtape: mixtape });
 }

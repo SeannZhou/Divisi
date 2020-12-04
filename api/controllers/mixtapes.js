@@ -151,13 +151,26 @@ module.exports.removeTrack = async function (req, res) {
     return res.status(httpStatus.OK).json({ mixtape: newMixtape });
 }
 
-module.exports.updateMixtape = function (req, res) {
-    Mixtape.findOneAndUpdate({"_id": req.params.id}, {$set: req.body}, {new: true}).then(mixtape => {
-        if (mixtape) {
-            return res.status(httpStatus.OK).json({ mixtape: mixtape });
-        } else {
-            return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.id} does not exist`});
-        }
-    })
+module.exports.updateMixtape = async function (req, res) {
+    let updatedMixtape = await Mixtape.findOneAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
+    if (updatedMixtape == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.id} does not exist`});
+    }
+    let updatedUser = null;
+    // Check if need to update name in user obj
+    if (req.body.name) {
+        updatedUser = await User.findOneAndUpdate({ _id: updatedMixtape.created_by.user_id, "mixtapes._id": req.params.id },
+        { "$set": {
+            "mixtapes.$.name": req.body.name
+        } }, {new: true} );
+    } else {
+        updatedUser = await User.findOne({ _id: updatedMixtape.created_by.user_id });
+    }
+
+    if (updatedUser == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${updatedMixtape.created_by.user_id} does not exist`});
+    }
+
+    return res.status(httpStatus.OK).json({ mixtape: updatedMixtape, user: updatedUser });
 }
 

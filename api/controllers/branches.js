@@ -131,3 +131,27 @@ module.exports.deleteBranch = async function (req, res) {
 
     return res.status(httpStatus.OK).json({ branch: branch, user: user });
 }
+
+module.exports.updateBranch = async function (req, res) {
+    let updatedBranch = await Branch.findOneAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
+    if (updatedBranch == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `branch with id ${req.params.id} does not exist`});
+    }
+
+    let updatedUser = null;
+    // Check if need to update name in user obj
+    if (req.body.name) {
+        updatedUser = await User.findOneAndUpdate({ _id: updatedBranch.created_by.user_id, "branches._id": req.params.id },
+        { "$set": {
+            "branches.$.name": req.body.name
+        } }, {new: true} );
+    } else {
+        updatedUser = await User.findOne({ _id: updatedBranch.created_by.user_id });
+    }
+
+    if (updatedUser == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${updatedMixtape.created_by.user_id} does not exist`});
+    }
+
+    return res.status(httpStatus.OK).json({ branch: updatedBranch, user: updatedUser });
+}

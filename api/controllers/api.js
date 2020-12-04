@@ -7,7 +7,6 @@ const Album = require("../models/Album");
 const User = require("../models/User");
 const Group = require("../models/Group");
 const Mixtape = require("../models/Mixtape");
-const Album = require("../models/Album");
 
 const { getUserById } = require('./users');
 

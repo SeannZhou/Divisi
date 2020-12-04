@@ -41,13 +41,24 @@ module.exports.createMixtape = async function (req, res) {
 }
 
 module.exports.deleteMixtape = async function (req, res) {
+    // Delete mixtape
     let mixtape = await Mixtape.findOneAndDelete({ "_id": req.params.mixtape_id });
     if (mixtape == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.mixtape_id} does not exist`});
     }
-    let user = await User.findOneAndUpdate({ _id: req.params.user_id }, { $pull: { "mixtapes": { "_id": req.params.mixtape_id }}}, {new: true});
+    // Remove mixtape in user obj
+    let user = await User.updateOne({ _id: req.params.user_id }, { $pull: { "mixtapes": { "_id": req.params.mixtape_id }}}, {new: true});
     if (user == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.user_id} does not exist`});
+    }
+    // Remove mixtape from user groups
+    let updatedUser = await User.findOneAndUpdate(
+        { _id: { $in: user.groups } },
+        { $pull: { mixtapes: { _id: mixtape._id } } },
+        { multi: true }
+    );
+    if (removeUserGroups == null) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `Updating group members failed.`});
     }
 
     return res.status(httpStatus.OK).json({ mixtape: mixtape, user: user });

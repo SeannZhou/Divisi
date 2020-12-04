@@ -30,7 +30,7 @@ module.exports.createMixtape = async function (req, res) {
     if (retval == null){
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `mixtape could not be saved.`});
     }
-    let updatedUser = await User.updateOne({"_id": req.body.user._id}, {
+    let updatedUser = await User.findOneAndUpdate({"_id": req.body.user._id}, {
         $push: {mixtapes: { _id: newMixtape._id, name: newMixtape.name }}
     });
     if (updatedUser == null) {

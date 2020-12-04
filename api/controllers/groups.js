@@ -30,7 +30,7 @@ module.exports.createGroup = async function (req, res) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `group could not be saved.`});
     }
 
-    let updatedUser = await User.updateOne({"_id": req.body.user._id}, {
+    let updatedUser = await User.findOneAndUpdate({"_id": req.body.user._id}, {
         $push: {groups: { _id: newGroup._id, name: newGroup.name }}
     });
     if (updatedUser == null) {

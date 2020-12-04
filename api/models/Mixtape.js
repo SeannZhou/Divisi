@@ -15,10 +15,10 @@ const MixtapeSchema = new Schema({
         type: Array,
         required: false
     },
-    user_branches: [{
-        branch_id: String,
-        branch_name: String,
-    }],
+    user_branches: {
+        type: Array,
+        required: false
+    },
     mixtape_cover: {
         type: String,
         required: false

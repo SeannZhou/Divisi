@@ -105,6 +105,18 @@ module.exports.userLeaveGroup = async function (req, res) {
 }
 
 module.exports.addMixtape = async function (req, res) {
+    let group = await Group.findOne({ _id: req.params.id });
+    if (group == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
+    }
+    else {
+        for (let i = 0; i < group.mixtapes.length; i++) {
+            if (group.mixtapes[i]._id === req.body.mixtape_id) {
+                return res.status(httpStatus.BAD_REQUEST).json({ error: `mixtape with id ${req.body.mixtape_id} already exists`});
+            }
+        }
+    }
+
     let update_query = { $push: { mixtapes:
                 {
                     _id: req.body.mixtape_id,

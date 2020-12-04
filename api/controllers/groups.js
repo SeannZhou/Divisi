@@ -176,7 +176,7 @@ module.exports.deleteGroup = async function (req, res) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `Updating group members failed.`});
     }
 
-    let user = await User.findOne( { _id: req.params.user_id } );
+    user = await User.findOne( { _id: req.params.user_id } );
     if (user == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.user_id} does not exist`});
     }

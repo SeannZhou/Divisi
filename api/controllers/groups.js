@@ -135,14 +135,28 @@ module.exports.removeMixtape = async function (req, res) {
     return res.status(httpStatus.OK).json({ group: newGroup });
 }
 
-module.exports.updateGroup = function (req, res) {
-    Group.findOneAndUpdate({"_id": req.params.id}, {$set: req.body}, {new: true}).then(group => {
-        if (group) {
-            return res.status(httpStatus.OK).json({ group: group });
-        } else {
-            return res.status(httpStatus.BAD_REQUEST).json({ email: `group with id ${req.params.id} does not exist`});
-        }
-    })
+module.exports.updateGroup = async function (req, res) {
+    let updatedGroup = await Group.findOneAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
+    if (updatedGroup == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
+    }
+
+    let updatedUser = null;
+    // Check if need to update name in user obj
+    if (req.body.name) {
+        updatedUser = await User.findOneAndUpdate({ _id: updatedGroup.created_by.user_id, "groups._id": req.params.id },
+        { "$set": {
+            "groups.$.name": req.body.name
+        } }, {new: true} );
+    } else {
+        updatedUser = await User.findOne({ _id: updatedMixtape.created_by.user_id });
+    }
+
+    if (updatedUser == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${updatedMixtape.created_by.user_id} does not exist`});
+    }
+
+    return res.status(httpStatus.OK).json({ group: updatedGroup, user: updatedUser });
 }
 
 module.exports.deleteGroup = async function (req, res) {

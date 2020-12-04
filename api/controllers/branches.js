@@ -53,7 +53,7 @@ module.exports.createBranch = async function (req, res) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.created_by.user_id} does not exist`});
     }
 
-    return res.status(httpStatus.OK).json({ branch: newBranch });
+    return res.status(httpStatus.OK).json({ branch: newBranch, user: updatedUser });
 }
 
 async function getBranchHelper(id) {

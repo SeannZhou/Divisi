@@ -95,13 +95,15 @@ module.exports.removeTrack = async function (req, res) {
        return res.status(httpStatus.NOT_FOUND).json({ error: `track with id ${req.params.track_id} does not exist in branch`});
    }
 
-   let update_query = { $pull: { tracks:
-               {
-                   _id: req.params.track_id
-               }
-       }};
+   let tracks = branch.tracks;
+   for (let i = 0; i < tracks.length; i++) {
+       if (tracks[i]._id === req.params.track_id) {
+           tracks.splice(i, 1);
+           break;
+       }
+   }
 
-   let newBranch = await Branch.findOneAndUpdate({"_id": req.params.branch_id}, update_query,{new: true});
+   let newBranch = await Branch.findOneAndUpdate({"_id": req.params.branch_id}, { "$set": {"tracks": tracks}}, {new: true});
    if (newBranch == null) {
        return res.status(httpStatus.NOT_FOUND).json({ error: `branch with id ${req.params.branch_id} does not exist`});
    }

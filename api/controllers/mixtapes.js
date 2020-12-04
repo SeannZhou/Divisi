@@ -37,7 +37,7 @@ module.exports.createMixtape = async function (req, res) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.user._id} does not exist`});
     }
 
-    return res.status(httpStatus.CREATED).json({ mixtape: newMixtape });
+    return res.status(httpStatus.CREATED).json({ mixtape: newMixtape, user: updatedUser });
 }
 
 module.exports.deleteMixtape = async function (req, res) {
@@ -50,7 +50,7 @@ module.exports.deleteMixtape = async function (req, res) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.user_id} does not exist`});
     }
 
-    return res.status(httpStatus.OK).json({ mixtape: mixtape });
+    return res.status(httpStatus.OK).json({ mixtape: mixtape, user: user });
 }
 
 async function getMixtapeHelper(id) {

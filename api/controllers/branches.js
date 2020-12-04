@@ -23,36 +23,37 @@ module.exports.createBranch = async function (req, res) {
         tracks: req.body.tracks
     });
 
+    // Save new branch
     let retval = await newBranch.save();
     if (retval == null){
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `Branch could not be saved.`});
     }
 
-    // Update tracks in mixtape
-//        let update_query = {
-//            "$set": {
-//                "total_duration": newDuration,
-//                "num_of_songs": newTotalSongs
-//            },
-//            "$push": {
-//                "tracks": req.body.track
-//            }
-//        };
-
-    let userBranch = {
-         _id: newBranch._id,
-         branch_name: newBranch.name,
-         created_by: {
-             user_id: newBranch.created_by.user_id,
-             name: newBranch.created_by.name
-         }
-     };
-    let updatedMixtape = await Mixtape.findOneAndUpdate({"_id": req.body.branched_from.mixtape_id}, { "$push": { user_branches: userBranch }}, {new: true});
+    // Add new branch to base mixtape
+    let updatedMixtape = await Mixtape.updateOne({ _id : req.body.branched_from.mixtape_id }, {
+        $push: {user_branches:
+                {
+                    branch_id: newBranch._id,
+                    branch_name: newBranch.name,
+                    created_by: {
+                        user_id: newBranch.created_by.user_id,
+                        name: newBranch.created_by.name
+                    }
+                }}
+    });
     if (updatedMixtape == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.body.mixtape_id} does not exist`});
     }
 
-    return res.status(httpStatus.OK).json({ branch: newBranch, mixtape: updatedMixtape });
+    // Add new branch to user
+    let updatedUser = await User.findOneAndUpdate({ _id : req.body.created_by.user_id }, {
+        $push: {branches: { _id: newBranch._id, name: newBranch.name }}
+    });
+    if (updatedUser == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.created_by.user_id} does not exist`});
+    }
+
+    return res.status(httpStatus.OK).json({ branch: newBranch, user: updatedUser });
 }
 
 async function getBranchHelper(id) {
@@ -122,5 +123,11 @@ module.exports.deleteBranch = async function (req, res) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${branch.branched_from.mixtape_id} does not exist`});
     }
 
-    return res.status(httpStatus.OK).json({ branch: branch});
+    let user = await User.findOne({ _id: branch.created_by.user_id });
+    if (user == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${branch.created_by.user_id} does not exist`});
+    }
+
+
+    return res.status(httpStatus.OK).json({ branch: branch, user: user });
 }

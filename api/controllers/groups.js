@@ -30,14 +30,14 @@ module.exports.createGroup = async function (req, res) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `group could not be saved.`});
     }
 
-    let updatedUser = await User.updateOne({"_id": req.body.user._id}, {
+    let updatedUser = await User.findOneAndUpdate({"_id": req.body.user._id}, {
         $push: {groups: { _id: newGroup._id, name: newGroup.name }}
     });
     if (updatedUser == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.user._id} does not exist`});
     }
 
-    return res.status(httpStatus.OK).json({ group: newGroup });
+    return res.status(httpStatus.OK).json({ group: newGroup, user: updatedUser });
 }
 
 async function getGroupHelper(id) {
@@ -175,6 +175,12 @@ module.exports.deleteGroup = async function (req, res) {
     if (removeUserGroups == null) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `Updating group members failed.`});
     }
+
+    let user = await User.findOne( { _id: req.params.user_id } );
+    if (user == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.user_id} does not exist`});
+    }
+
 
     return res.status(httpStatus.OK).json({ user: user });
 }

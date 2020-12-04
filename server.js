@@ -3,10 +3,12 @@ const bodyParser = require("body-parser");
 const passport = require("passport");
 const mongoose = require('./config/mongoose');
 const cors = require('cors');
-const socketIO = require('socket.io');
 const http = require('http');
 
 const app = express();
+const server = http.createServer(app);
+var io = require('socket.io')(server, {cors: {origin: '*'}});
+
 app.use(
     bodyParser.urlencoded({
         extended: false
@@ -24,7 +26,6 @@ mongoose.connection.on('error', function () {
     process.exit(1);
 });
 mongoose.connection.once('open', function () {
-    console.log("Connected to database");
     app.use(passport.initialize());
     require("./config/passport")(passport);
 });
@@ -34,7 +35,7 @@ const groups = require('./api/routes/groups');
 const mixtapes = require('./api/routes/mixtapes');
 const users = require('./api/routes/users');
 const apis = require('./api/routes/api');
-const server = http.createServer(app);
+
 
 app.use("/api/branches", branches);
 app.use("/api/groups", groups);
@@ -46,28 +47,13 @@ app.get('/', (req, res) => {
     res.send('ClouDL server up and running.');
 });
 
-app.get('/audio', function (req, res) {
-
-    var params = {
-        Bucket: 'New-Bucket-1020',
-        Key: 'test.mp3'
-    };
-
-    var downloadStream = client.downloadStream(params);
-
-    downloadStream.on('error', function () {
-        res.status(404).send('Not Found');
-    });
-    downloadStream.on('httpHeaders', function (statusCode, headers, resp) {
-        // Set Headers
-        res.set({
-            'Content-Type': headers['content-type']
-        });
-    });
-
-    // Pipe download stream to response
-    downloadStream.pipe(res);
-});
-
 const port = process.env.PORT || 5000;
-module.exports = server.listen(port, () => console.log(`Server v8 up and running on port ${port} !`));
+server.listen(port, () => console.log(`Server v8 up and running on port ${port} !`));
+
+io.on('connection', function(socket) {
+
+    console.log(`Client ${socket.id} connected.`);
+    socket.on('disconnect', function() {
+        console.log('Client disconnected.');
+    });
+});

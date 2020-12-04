@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 // load models
 const User = require("../models/User");
 const Mixtape = require("../models/Mixtape");
+const Group = require("../models/Group");
 
 
 module.exports.createMixtape = async function (req, res) {
@@ -41,13 +42,24 @@ module.exports.createMixtape = async function (req, res) {
 }
 
 module.exports.deleteMixtape = async function (req, res) {
+    // Delete mixtape
     let mixtape = await Mixtape.findOneAndDelete({ "_id": req.params.mixtape_id });
     if (mixtape == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.mixtape_id} does not exist`});
     }
+    // Remove mixtape in user obj
     let user = await User.findOneAndUpdate({ _id: req.params.user_id }, { $pull: { "mixtapes": { "_id": req.params.mixtape_id }}}, {new: true});
     if (user == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.user_id} does not exist`});
+    }
+    // Remove mixtape from user groups
+    let updatedGroup = await Group.update(
+        { _id: { $in: user.groups } },
+        { $pull: { mixtapes: { _id: req.params.mixtape_id } } },
+        { multi: true }
+    );
+    if (updatedGroup == null) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `Updating groups failed.`});
     }
 
     return res.status(httpStatus.OK).json({ mixtape: mixtape, user: user });

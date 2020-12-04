@@ -23,12 +23,14 @@ module.exports.createBranch = async function (req, res) {
         tracks: req.body.tracks
     });
 
+    // Save new branch
     let retval = await newBranch.save();
     if (retval == null){
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `Branch could not be saved.`});
     }
 
-    let updatedMixtape = await Mixtape.updateOne({"_id": req.body.branched_from.mixtape_id}, {
+    // Add new branch to base mixtape
+    let updatedMixtape = await Mixtape.updateOne({ _id : req.body.branched_from.mixtape_id }, {
         $push: {user_branches:
                 {
                     branch_id: newBranch._id,
@@ -41,6 +43,14 @@ module.exports.createBranch = async function (req, res) {
     });
     if (updatedMixtape == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.body.mixtape_id} does not exist`});
+    }
+
+    // Add new branch to user
+    let updatedUser = await User.updateOne({ _id : req.body.created_by.user_id }, {
+        $push: {branches: { _id: newBranch._id, name: newBranch.name }}
+    });
+    if (updatedUser == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.created_by.user_id} does not exist`});
     }
 
     return res.status(httpStatus.OK).json({ branch: newBranch });

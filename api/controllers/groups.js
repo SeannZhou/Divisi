@@ -32,7 +32,7 @@ module.exports.createGroup = async function (req, res) {
 
     let updatedUser = await User.findOneAndUpdate({"_id": req.body.user._id}, {
         $push: {groups: { _id: newGroup._id, name: newGroup.name }}
-    });
+    }, {new: true} );
     if (updatedUser == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.user._id} does not exist`});
     }
@@ -75,7 +75,7 @@ module.exports.userJoinsGroup = async function (req, res) {
                 }
     }};
 
-    let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query,{new: true});
+    let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query, {new: true} );
     if (newGroup == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
     }
@@ -88,7 +88,7 @@ module.exports.userLeaveGroup = async function (req, res) {
     let update_query = { $pull: { groups:
                 { _id: req.params.id }
         }};
-    let newUser = await User.findOneAndUpdate({"_id": req.body.user_id}, update_query, {new: true});
+    let newUser = await User.findOneAndUpdate({"_id": req.body.user_id}, update_query, {new: true} );
     if (newUser == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.user_id} does not exist`});
     }

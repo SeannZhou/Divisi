@@ -48,7 +48,7 @@ module.exports.createBranch = async function (req, res) {
     // Add new branch to user
     let updatedUser = await User.findOneAndUpdate({ _id : req.body.created_by.user_id }, {
         $push: {branches: { _id: newBranch._id, name: newBranch.name }}
-    });
+    }, {new: true} );
     if (updatedUser == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.created_by.user_id} does not exist`});
     }

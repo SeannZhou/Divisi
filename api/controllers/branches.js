@@ -125,11 +125,11 @@ module.exports.deleteBranch = async function (req, res) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${branch.branched_from.mixtape_id} does not exist`});
     }
 
-    let user = await User.findOne({ _id: branch.created_by.user_id });
+    // Remove branch in user obj
+    let user = await User.findOneAndUpdate({ _id: branch.created_by.user_id }, { $pull: { "branches": { "_id": req.params.id }}}, {new: true});
     if (user == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${branch.created_by.user_id} does not exist`});
     }
-
 
     return res.status(httpStatus.OK).json({ branch: branch, user: user });
 }

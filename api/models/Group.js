@@ -23,10 +23,6 @@ const GroupSchema = new Schema({
         type: Array,
         required: false
     },
-    activity: {
-        type: Array,
-        required: false
-    },
     is_public: {
         type: Boolean,
         required: true
@@ -45,6 +41,10 @@ const GroupSchema = new Schema({
     },
     num_of_likes: {
         type: Number,
+        required: false
+    },
+    activities: {
+        type: Array,
         required: false
     }
 });

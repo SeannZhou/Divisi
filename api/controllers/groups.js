@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 // load models
 const User = require("../models/User");
 const Group = require("../models/Group");
-
+const Activity = require("../models/Activity");
 
 module.exports.createGroup = async function (req, res) {
     // Creat group and add branch obj inside
@@ -57,30 +57,59 @@ module.exports.getGroup = async function (req, res) {
     }
 }
 
+const updateGroupActivity = async(activity, group) => {
+    update_query = {
+        $push: {
+            activities: activity
+        }
+    };
+    return await Group.findOneAndUpdate({"_id": group._id}, update_query, { new: true });
+}
+
 module.exports.userJoinsGroup = async function (req, res) {
+
     let update_query = { $push: { groups:
                 {
                     _id: req.params.id,
                     name: req.body.group_name
                 }
         }};
-    let newUser = await User.findOneAndUpdate({"_id": req.body.user._id}, update_query, {new: true});
+    let newUser = await User.findOne({"_id": req.body.user._id}); //AndUpdate({"_id": req.body.user._id}, update_query, {new: true});
     if (newUser == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.user._id} does not exist`});
     }
-    update_query = { $push: { members:
-                {
-                    _id: req.body.user._id,
-                    name: req.body.user.username
-                }
-    }};
-
-    let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query, {new: true} );
+    update_query = {
+        $push: {
+            members: {
+                _id: req.body.user._id,
+                name: req.body.user.username
+            }
+        }
+    };
+    let newGroup = await Group.findOne({"_id": req.params.id}); //Group.findOneAndUpdate({"_id": req.params.id}, update_query, {new: true} );
     if (newGroup == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
     }
+     // create activity
+     let newActivity = new Activity({
+        _id: mongoose.Types.ObjectId(),
+        type: "NewGroupMember",
+        user: {
+            _id: newUser._id,
+            name: newUser.name,
+            profile_picture: newUser.profile_picture
+        },
+        target: {
+            _id: newGroup._id,
+            name: newGroup.name
+        },
+        num_of_likes: 0,
+        group: newGroup._id
+    });
+    await newActivity.save();
+    // newGroup = await updateGroupActivity(newActivity, newGroup);
 
-    return res.status(httpStatus.OK).json({ group: newGroup, user: newUser });
+    return res.status(httpStatus.OK).json({ group: newGroup, user: newUser, activity: newActivity });
 }
 
 module.exports.userLeaveGroup = async function (req, res) {

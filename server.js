@@ -7,7 +7,7 @@ const http = require('http');
 
 const app = express();
 const server = http.createServer(app);
-var io = require('socket.io')(server, {cors: {origin: '*'}});
+const io = require('socket.io')(server, {cors: {origin: '*'}});
 
 app.use(
     bodyParser.urlencoded({
@@ -53,7 +53,25 @@ server.listen(port, () => console.log(`Server v8 up and running on port ${port} 
 io.on('connection', function(socket) {
 
     console.log(`Client ${socket.id} connected.`);
+
+    socket.on('join group', (group, user, activity) => {
+        console.log(`socket ${socket.id} requested to join group ${group._id}`);
+        // socket.join(group._id);
+        // socket.to(group._id).emit('user join group', user, group);
+        console.log("==============")
+        console.log(activity);
+        socket.broadcast.emit('user join group', user, group, activity);
+    });
+
+    socket.on('message', (msg) => {
+        console.log(`${msg} from ${socket.id}`);
+        socket.broadcast.emit('pm', msg);
+    })
+
     socket.on('disconnect', function() {
         console.log('Client disconnected.');
+        socket.removeAllListeners('join group');
+        socket.removeAllListeners('disconnect');
+        io.removeAllListeners('connection');
     });
 });

@@ -73,7 +73,9 @@ module.exports.likeTrack = async (req, res) => {
     let user = await getUserById(req.body._id);
     if(user && "liked_tracks" in user && !(user.liked_tracks.some(e => e.equals(track._id)))){
         await Track.findOneAndUpdate({"_id": track._id}, {$inc: {'num_of_likes': 1}})
-        let updatedUser = await User.findOneAndUpdate({"_id": user._id}, {$push: {liked_tracks: track._id }}, {new: true})
+        let updatedUser = await User.findOneAndUpdate({"_id": user._id}, {$push: {liked_tracks: track._id }}, {new: true});
+        // emit an even to all friends who liked the track
+
         return res.status(httpStatus.OK).json(updatedUser);
     }
     return res.status(httpStatus.BAD_REQUEST).json({error: `You have already liked the track ${track.title}`});

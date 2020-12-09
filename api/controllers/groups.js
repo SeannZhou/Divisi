@@ -74,7 +74,7 @@ module.exports.userJoinsGroup = async function (req, res) {
                     name: req.body.group_name
                 }
         }};
-    let newUser = await User.findOne({"_id": req.body.user._id}); //AndUpdate({"_id": req.body.user._id}, update_query, {new: true});
+    let newUser = await User.findOneAndUpdate({"_id": req.body.user._id}, update_query, {new: true});
     if (newUser == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.user._id} does not exist`});
     }
@@ -86,7 +86,7 @@ module.exports.userJoinsGroup = async function (req, res) {
             }
         }
     };
-    let newGroup = await Group.findOne({"_id": req.params.id}); //Group.findOneAndUpdate({"_id": req.params.id}, update_query, {new: true} );
+    let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query, {new: true} );
     if (newGroup == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
     }
@@ -96,7 +96,7 @@ module.exports.userJoinsGroup = async function (req, res) {
         type: "NewGroupMember",
         user: {
             _id: newUser._id,
-            name: newUser.name,
+            username: newUser.username,
             profile_picture: newUser.profile_picture
         },
         target: {
@@ -107,7 +107,7 @@ module.exports.userJoinsGroup = async function (req, res) {
         group: newGroup._id
     });
     await newActivity.save();
-    // newGroup = await updateGroupActivity(newActivity, newGroup);
+    newGroup = await updateGroupActivity(newActivity, newGroup);
 
     return res.status(httpStatus.OK).json({ group: newGroup, user: newUser, activity: newActivity });
 }

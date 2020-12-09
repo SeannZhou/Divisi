@@ -30,6 +30,49 @@ mongoose.connection.once('open', function () {
     require("./config/passport")(passport);
 });
 
+// create helper middleware so we can reuse server-sent events
+const useServerSentEventsMiddleware = (req, res, next) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+
+    // only if you want anyone to access this endpoint
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    res.flushHeaders();
+
+    const sendEventStreamData = (data) => {
+        const sseFormattedResponse = `data: ${JSON.stringify(data)}\n\n`;
+        res.write(sseFormattedResponse);
+    }
+
+    // we are attaching sendEventStreamData to res, so we can use it later
+    Object.assign(res, {
+        sendEventStreamData
+    });
+
+    next();
+}
+
+const streamRandomNumbers = (req, res) => {
+    // We are sending anyone who connects to /stream-random-numbers
+    // a random number that's encapsulated in an object
+    let interval = setInterval(function generateAndSendRandomNumber(){
+        const data = {
+            value: Math.random(),
+        };
+
+        res.sendEventStreamData(data);
+    }, 1000);
+
+    // close
+    res.on('close', () => {
+        clearInterval(interval);
+        res.end();
+    });
+}
+app.get('/stream-random-numbers', useServerSentEventsMiddleware,
+    streamRandomNumbers)
+
 const branches = require('./api/routes/branches');
 const groups = require('./api/routes/groups');
 const mixtapes = require('./api/routes/mixtapes');
@@ -56,10 +99,8 @@ io.on('connection', function(socket) {
 
     socket.on('join group', (group, user, activity) => {
         console.log(`socket ${socket.id} requested to join group ${group._id}`);
-        // socket.join(group._id);
-        // socket.to(group._id).emit('user join group', user, group);
-        console.log("==============")
-        console.log(activity);
+        // console.log("==============")
+        // console.log(activity);
         socket.broadcast.emit('user join group', user, group, activity);
     });
 
@@ -70,8 +111,9 @@ io.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         console.log('Client disconnected.');
-        socket.removeAllListeners('join group');
-        socket.removeAllListeners('disconnect');
-        io.removeAllListeners('connection');
+        // socket.removeAllListeners('message');
+        // socket.removeAllListeners('join group');
+        // socket.removeAllListeners('disconnect');
+        // io.removeAllListeners('connection');
     });
 });

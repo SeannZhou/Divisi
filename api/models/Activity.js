@@ -25,6 +25,10 @@ const ActivitySchema = new Schema({
     group: {
         type: String,
         required: false
+    },
+    timestamp: {
+        type: Date,
+        required: true
     }
 });
 

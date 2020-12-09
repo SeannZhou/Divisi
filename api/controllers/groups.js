@@ -104,7 +104,8 @@ module.exports.userJoinsGroup = async function (req, res) {
             name: newGroup.name
         },
         num_of_likes: 0,
-        group: newGroup._id
+        group: newGroup._id,
+        timestamp: new Date()
     });
     await newActivity.save();
     newGroup = await updateGroupActivity(newActivity, newGroup);
@@ -145,7 +146,6 @@ module.exports.addMixtape = async function (req, res) {
             }
         }
     }
-
     let update_query = { $push: { mixtapes:
                 {
                     _id: req.body.mixtape_id,

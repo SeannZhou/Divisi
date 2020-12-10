@@ -92,17 +92,17 @@ module.exports.likeTrack = async (req, res) => {
             return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `track could not be saved.`});
         }
         // Give track_id variable new valid ID
-        req.params.track_id = newTrack._id;
+        track._id = newTrack._id;
     }
 
     // Create like if does not exist
-    let like = await Like.findOne({ object_id: req.params.track_id });
+    let like = await Like.findOne({ object_id: track._id });
     if (like == null) {
         // Create Like
         const newLike = new Like({
             _id: mongoose.Types.ObjectId(),
             object_type: "TRACK",
-            object_id: req.params.track_id,
+            object_id: track._id,
             num_of_likes: 1,
             who_likes: []
         });
@@ -131,7 +131,11 @@ module.exports.likeTrack = async (req, res) => {
     if (like == null){
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `like could not be updated.`});
     }
-    user = await User.findOneAndUpdate({"_id": user._id}, {$push: {liked_tracks: track._id }}, {new: true});
+    let new_track = {
+        uri: track.uri,
+        name: track.name
+    };
+    user = await User.findOneAndUpdate({"_id": user._id}, {$push: {liked_tracks: new_track }}, {new: true});
     if (user == null){
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `user could not be updated.`});
     }
@@ -140,9 +144,9 @@ module.exports.likeTrack = async (req, res) => {
 }
 
 module.exports.unlikeTrack = async (req, res) => {
-    let track = await Track.findById(req.params.track_id);
+    let track = await Track.findOne({ uri: req.body.track_uri });
     if (track == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no tracks found with id ${req.params.track_id}` });
+        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no tracks found with track uri ${req.body.track_uri}` });
     }
     let user = await getUserById(req.body.user_id);
     if (user == null) {
@@ -166,7 +170,7 @@ module.exports.unlikeTrack = async (req, res) => {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `like could not be updated.`});
     }
 
-    user = await Like.findOneAndUpdate({ _id: user._id }, {"$pull" : {liked_tracks: track._id} } , {new: true});
+    user = await User.findOneAndUpdate({ _id: user._id }, {"$pull" : {liked_tracks: track._id} } , {new: true});
     if (user == null){
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `user could not be updated.`});
     }

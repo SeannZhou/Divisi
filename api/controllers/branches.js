@@ -79,16 +79,29 @@ module.exports.addTrack = async function (req, res) {
     if (branch == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `There are no Branches found.` });
     }
-    // check if track obj exists, if not create new one
-    let newTrack = await Track.findOne({ "title": req.body.track.name });
-    if (newTrack == null) {
-        trackBody = req.body.track;
-        trackBody._id = mongoose.Types.ObjectId();
-        newTrack = new Track(trackBody);
-        await newTrack.save();
+
+    let track = await Track.findOne({ uri: req.body.track.uri });
+    // Create track if doesn't exist
+    if (track == null) {
+        let spotify_track = req.body.track;
+        // Create Track
+        const newTrack = new Track({
+            _id: mongoose.Types.ObjectId(),
+            name: spotify_track.name,
+            artists: spotify_track.artists,
+            album: spotify_track.album,
+            uri: spotify_track.uri,
+            duration: spotify_track.duration
+        });
+        let retval = await newTrack.save();
+        if (retval == null){
+            return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `track could not be saved.`});
+        }
+        // Define track after creating
+        track = newTrack;
     }
 
-    let newBranch = await Branch.findOneAndUpdate({ "_id": req.params.id }, { $push: { "tracks": newTrack } }, { new: true });
+    let newBranch = await Branch.findOneAndUpdate({ "_id": req.params.id }, { $push: { "tracks": track } }, { new: true });
     if (newBranch == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `branch with id ${req.params.id} does not exist` });
     }
@@ -101,13 +114,13 @@ module.exports.removeTrack = async function (req, res) {
     if (branch == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `branch with id ${req.params.branch_id} does not exist` });
     }
-    if (branch.tracks.filter(obj => (obj._id == req.params.track_id)).length == 0) {
+    if (branch.tracks.filter(obj => (obj.uri == req.body.track_uri)).length == 0) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `track with id ${req.params.track_id} does not exist in branch` });
     }
 
     let tracks = branch.tracks;
     for (let i = 0; i < tracks.length; i++) {
-        if (tracks[i]._id == req.params.track_id) {
+        if (tracks[i].uri == req.body.track_uri) {
             tracks.splice(i, 1);
             break;
         }

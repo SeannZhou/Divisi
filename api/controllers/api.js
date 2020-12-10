@@ -72,7 +72,7 @@ module.exports.likeTrack = async (req, res) => {
         return res.status(httpStatus.NOT_FOUND).json({ error: `there are no users found with id ${req.params.user_id}` });
     }
 
-    let track = await Track.findById(req.params.track_id);
+    let track = await Track.findOne({ uri: req.body.track.uri });
     // Create track if doesn't exist
     if (track == null) {
         let spotify_track = req.body.track;

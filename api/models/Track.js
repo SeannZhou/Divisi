@@ -3,31 +3,24 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const TrackSchema = new Schema({
-    artist_name: {
-        type: String,
-        required: true
-    },
-    title: {
-        type: String,
-        required: true
-    },
-    duration: {
-        type: Number,
-        required: true
-    },
-    album: {
+    _id:{
         type: String
     },
-    api_url: {
+    album: {
+        type: Object
+    },
+    name: {
         type: String,
         required: true
     },
-    cover_picture: {
-        type: String,
-        required: true
+    artists: {
+        type: Array
     },
-    num_of_likes: {
-        type: Number
+    album: {
+        type: Object
+    },
+    duration_ms: {
+        type: Number,
     }
 });
 

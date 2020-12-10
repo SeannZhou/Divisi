@@ -5,7 +5,8 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const Mixtape = require("../models/Mixtape");
 const Group = require("../models/Group");
-
+const Track = require("../models/Track");
+const { TOO_MANY_REQUESTS } = require('http-status');
 
 module.exports.createMixtape = async function (req, res) {
     // Creat mixtape and add branch obj inside
@@ -88,19 +89,26 @@ module.exports.addTrack = async function (req, res) {
     if (mixtape == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.id} does not exist`});
     }
-
+    //check if track exists, if not create a new one
+    let newTrack = await Track.findOne({"title": req.body.track.name});
+    if(newTrack == null){
+        trackBody = req.body.track;
+        trackBody._id = mongoose.Types.ObjectId();
+        newTrack = new Track(trackBody);
+        await newTrack.save();
+    }
     // Updating mixtape data
     let newTotalSongs = mixtape.num_of_songs + 1;
-    let newDuration = (parseInt(mixtape.total_duration) + parseInt(req.body.track.duration));
+    // let newDuration = (parseInt(mixtape.total_duration) + parseInt(newTrack.duration));
 
     // Update tracks in mixtape
     let update_query = {
         "$set": {
-            "total_duration": newDuration,
+            // "total_duration": newDuration,
             "num_of_songs": newTotalSongs
         },
         "$push": {
-            "tracks": req.body.track
+            "tracks": newTrack
         }
     };
 
@@ -129,7 +137,7 @@ module.exports.removeTrack = async function (req, res) {
     // Find track to remove in mixtape
     let tracks = mixtape.tracks;
     for (let i = 0; i < tracks.length; i++) {
-        if (tracks[i]._id === req.body.track._id) {
+        if (tracks[i]._id.equals(req.body.track._id)) {
             tracks.splice(i, 1);
             break;
         }

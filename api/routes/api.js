@@ -13,8 +13,8 @@ const controller = require("../controllers/api");
 const { getTrack, getArtist, getAlbum, search, likeTrack, unlikeTrack } = controller;
 
 router.get('/track/:id', getTrack);
-router.patch('/track/:track_id/like/:user_id', likeTrack);
-router.patch('/track/:track_id/unlike/:user_id', unlikeTrack);
+router.patch('/track/:user_id/like/', likeTrack);
+router.patch('/track/:user_id/unlike/', unlikeTrack);
 router.get('/artist/:id', getArtist);
 router.get('/album/:id', getAlbum);
 router.get('/search', search);

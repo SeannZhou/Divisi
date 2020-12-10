@@ -9,7 +9,7 @@ const TrackSchema = new Schema({
     album: {
         type: Object
     },
-    title: {
+    name: {
         type: String,
         required: true
     },

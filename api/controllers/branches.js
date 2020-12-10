@@ -115,7 +115,7 @@ module.exports.removeTrack = async function (req, res) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `branch with id ${req.params.branch_id} does not exist` });
     }
     if (branch.tracks.filter(obj => (obj.uri == req.body.track_uri)).length == 0) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `track with id ${req.params.track_id} does not exist in branch` });
+        return res.status(httpStatus.NOT_FOUND).json({ error: `track with id ${req.params.track_uri} does not exist in branch` });
     }
 
     let tracks = branch.tracks;

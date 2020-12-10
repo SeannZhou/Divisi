@@ -7,6 +7,7 @@ const Album = require("../models/Album");
 const User = require("../models/User");
 const Group = require("../models/Group");
 const Mixtape = require("../models/Mixtape");
+const Like = require("../models/Like");
 
 const { getUserById } = require('./users');
 
@@ -66,31 +67,108 @@ module.exports.search = async (req, res) => {
 }
 
 module.exports.likeTrack = async (req, res) => {
-    let track = await Track.findById(req.params.id);
-    if (track == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no tracks found with id ${req.params.id}` });
+    let user = await getUserById(req.params.user_id);
+    if (user == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no users found with id ${req.params.user_id}` });
     }
-    let user = await getUserById(req.body._id);
-    if(user && "liked_tracks" in user && !(user.liked_tracks.some(e => e.equals(track._id)))){
-        await Track.findOneAndUpdate({"_id": track._id}, {$inc: {'num_of_likes': 1}})
-        let updatedUser = await User.findOneAndUpdate({"_id": user._id}, {$push: {liked_tracks: track._id }}, {new: true});
-        // emit an even to all friends who liked the track
 
-        return res.status(httpStatus.OK).json(updatedUser);
+    let track = await Track.findById(req.params.track_id);
+    // Create track if doesn't exist
+    if (track == null) {
+        let spotify_track = req.body.track;
+        // Create Track
+        const newTrack = new Track({
+            _id: mongoose.Types.ObjectId(),
+            title: spotify_track.title,
+            artists: spotify_track.artists,
+            album: spotify_track.album,
+            uri: spotify_track.uri,
+            duration_ms: spotify_track.duration_ms
+        });
+
+        let retval = await newTrack.save();
+        if (retval == null){
+            return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `track could not be saved.`});
+        }
+        // Give track_id variable new valid ID
+        req.params.track_id = newTrack._id;
     }
-    return res.status(httpStatus.BAD_REQUEST).json({error: `You have already liked the track ${track.title}`});
+
+    // Create like if does not exist
+    let like = await Like.findOne({ object_id: req.params.track_id });
+    if (like == null) {
+        // Create Like
+        const newLike = new Like({
+            _id: mongoose.Types.ObjectId(),
+            object_type: "TRACK",
+            object_id: req.params.track_id,
+            num_of_likes: 1,
+            who_likes: []
+        });
+        // Add user to liked array
+        newLike.who_likes.push(req.params.user_id)
+        let retval = await newLike.save();
+        if (retval == null){
+            return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `like could not be saved.`});
+        }
+
+        user = await User.findOneAndUpdate({"_id": user._id}, {$push: {liked_tracks: track._id }}, {new: true});
+        if (user == null){
+            return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `user could not be updated.`});
+        }
+        // Return successful like
+        return res.status(httpStatus.OK).json({ user: user, like: newLike });
+    }
+
+    // Bad request if user has already liked
+    if (like.who_likes.includes(user._id)) {
+        return res.status(httpStatus.BAD_REQUEST).json({ error: `User has already liked the object`});
+    }
+
+    // Update and return success
+    like = await Like.findOneAndUpdate({"_id": like._id}, {$push: {who_likes: user_id }}, {new: true});
+    if (like == null){
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `like could not be updated.`});
+    }
+    user = await User.findOneAndUpdate({"_id": user._id}, {$push: {liked_tracks: track._id }}, {new: true});
+    if (user == null){
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `user could not be updated.`});
+    }
+
+    return res.status(httpStatus.OK).json({ user: user, like: like });
 }
 
 module.exports.unlikeTrack = async (req, res) => {
-    let track = await Track.findById(req.params.id);
+    let track = await Track.findById(req.params.track_id);
     if (track == null) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no tracks found with id ${req.params.id}` });
+        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no tracks found with id ${req.params.track_id}` });
     }
-    let user = await getUserById(req.body._id);
-    if(user && "liked_tracks" in user && user.liked_tracks.some(e => e.equals(track._id))){
-        await Track.findOneAndUpdate({"_id": track._id}, {$inc: {'num_of_likes': -1}})
-        let updatedUser = await User.findOneAndUpdate({"_id": user._id}, {$pull: {liked_tracks: track._id }}, {new: true})
-        return res.status(httpStatus.OK).json(updatedUser);
+    let user = await getUserById(req.body.user_id);
+    if (user == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no users found with id ${req.params.user_id}` });
     }
-    return res.status(httpStatus.BAD_REQUEST).json({error: `You did not like Track ${track.title}`});
+    let like = await Like.findOne({ object_id: track._id });
+    if (like == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no likes found with an object ID of id ${track._id}` });
+    }
+
+    let update_query = {
+        "$set": {
+            "num_of_likes": like.num_of_likes - 1
+        },
+        "$pull": {
+            who_likes: user._id
+        }
+    };
+    like = await Like.findOneAndUpdate({ object_id: track._id }, update_query, {new: true});
+    if (like == null){
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `like could not be updated.`});
+    }
+
+    user = await Like.findOneAndUpdate({ _id: user._id }, {"$pull" : {liked_tracks: track._id} } , {new: true});
+    if (user == null){
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `user could not be updated.`});
+    }
+
+    return res.status(httpStatus.OK).json({ user: user, like: like });
 }

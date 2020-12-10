@@ -9,15 +9,15 @@ const TrackSchema = new Schema({
     album: {
         type: Object
     },
-    name: {
+    title: {
         type: String,
         required: true
     },
     artists: {
         type: Array
     },
-    album: {
-        type: Object
+    uri: {
+        type: String
     },
     duration_ms: {
         type: Number,

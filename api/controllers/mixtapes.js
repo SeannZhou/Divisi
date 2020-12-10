@@ -101,7 +101,7 @@ module.exports.addTrack = async function (req, res) {
             artists: spotify_track.artists,
             album: spotify_track.album,
             uri: spotify_track.uri,
-            duration_ms: spotify_track.duration_ms
+            duration: spotify_track.duration
         });
         let retval = await newTrack.save();
         if (retval == null){
@@ -113,7 +113,7 @@ module.exports.addTrack = async function (req, res) {
 
     // Updating mixtape data
     let newTotalSongs = mixtape.num_of_songs + 1;
-    let newDuration = (parseInt(mixtape.total_duration) + parseInt(track.duration_ms) / 1000);
+    let newDuration = parseInt(mixtape.total_duration) + parseInt(track.duration);
 
     // Update tracks in mixtape
     let update_query = {
@@ -146,7 +146,7 @@ module.exports.removeTrack = async function (req, res) {
 
     // Updating mixtape data
     let newTotalSongs = mixtape.num_of_songs - 1;
-    let newDuration = (parseInt(mixtape.total_duration) - parseInt(req.body.track.duration) / 1000);
+    let newDuration = parseInt(mixtape.total_duration) - parseInt(req.body.track.duration);
 
     // Find track to remove in mixtape
     let tracks = mixtape.tracks;

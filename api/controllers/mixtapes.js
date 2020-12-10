@@ -113,12 +113,12 @@ module.exports.addTrack = async function (req, res) {
 
     // Updating mixtape data
     let newTotalSongs = mixtape.num_of_songs + 1;
-    let newDuration = parseInt(mixtape.total_duration) + parseInt(track.duration);
+    // let newDuration = parseInt(mixtape.total_duration) + parseInt(track.duration);
 
     // Update tracks in mixtape
     let update_query = {
         "$set": {
-            "total_duration": newDuration,
+            // "total_duration": newDuration,
             "num_of_songs": newTotalSongs
         },
         "$push": {
@@ -137,30 +137,31 @@ module.exports.addTrack = async function (req, res) {
 module.exports.removeTrack = async function (req, res) {
     // Get mixtape
     var mixtape = await getMixtapeHelper(req.params.id);
+    console.log(req.params.id);
+    console.log(mixtape);
     if (mixtape == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.id} does not exist`});
     }
-    if (mixtape.num_of_songs === 0) {
-        return res.status(httpStatus.BAD_REQUEST).json({ error: `There are no tracks to remove.`});
-    }
+    // if (mixtape.num_of_songs === 0) {
+    //     return res.status(httpStatus.BAD_REQUEST).json({ error: `There are no tracks to remove.`});
+    // }
 
     // Updating mixtape data
     let newTotalSongs = mixtape.num_of_songs - 1;
-    let newDuration = parseInt(mixtape.total_duration) - parseInt(req.body.track.duration);
+    // let newDuration = parseInt(mixtape.total_duration) - parseInt(req.body.track.duration);
 
     // Find track to remove in mixtape
     let tracks = mixtape.tracks;
     for (let i = 0; i < tracks.length; i++) {
-        if (tracks[i].uri.equals(req.body.track_uri)) {
+        if (tracks[i]._id === req.body.track._id) {
             tracks.splice(i, 1);
             break;
         }
     }
-
     // Update tracks in mixtape
     let update_query = {
         "$set": {
-            "total_duration": newDuration,
+            // "total_duration": newDuration,
             "num_of_songs": newTotalSongs,
             "tracks": tracks
         }

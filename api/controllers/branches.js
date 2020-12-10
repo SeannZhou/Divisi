@@ -110,23 +110,25 @@ module.exports.addTrack = async function (req, res) {
 }
 
 module.exports.removeTrack = async function (req, res) {
-    let branch = await getBranchHelper(req.params.branch_id);
+    let branch = await getBranchHelper(req.params.id);
+
     if (branch == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `branch with id ${req.params.branch_id} does not exist` });
     }
-    if (branch.tracks.filter(obj => (obj.uri == req.body.track_uri)).length == 0) {
-        return res.status(httpStatus.NOT_FOUND).json({ error: `track with id ${req.params.track_uri} does not exist in branch` });
+    if (branch.tracks.filter(obj => (obj._id == req.params.track_id)).length == 0) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `track with id ${req.params.track_id} does not exist in branch` });
     }
 
     let tracks = branch.tracks;
     for (let i = 0; i < tracks.length; i++) {
-        if (tracks[i].uri == req.body.track_uri) {
+        console.log(tracks[i]._id, req.params.track_id, tracks[i]._id === req.params.track_id)
+        if (tracks[i]._id === req.params.track_id) {
             tracks.splice(i, 1);
             break;
         }
     }
 
-    let newBranch = await Branch.findOneAndUpdate({ "_id": req.params.branch_id }, { "$set": { "tracks": tracks } }, { new: true });
+    let newBranch = await Branch.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "tracks": tracks } }, { new: true });
     if (newBranch == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `branch with id ${req.params.branch_id} does not exist` });
     }

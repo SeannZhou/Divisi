@@ -19,7 +19,7 @@ const TrackSchema = new Schema({
     uri: {
         type: String
     },
-    duration_ms: {
+    duration: {
         type: Number,
     }
 });

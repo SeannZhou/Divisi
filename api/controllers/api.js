@@ -1,4 +1,5 @@
 const httpStatus = require('http-status');
+const mongoose = require("mongoose");
 
 // load models
 const Track = require("../models/Track");
@@ -79,7 +80,7 @@ module.exports.likeTrack = async (req, res) => {
         // Create Track
         const newTrack = new Track({
             _id: mongoose.Types.ObjectId(),
-            title: spotify_track.title,
+            name: spotify_track.name,
             artists: spotify_track.artists,
             album: spotify_track.album,
             uri: spotify_track.uri,

@@ -89,26 +89,40 @@ module.exports.addTrack = async function (req, res) {
     if (mixtape == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.params.id} does not exist`});
     }
-    //check if track exists, if not create a new one
-    let newTrack = await Track.findOne({"title": req.body.track.name});
-    if(newTrack == null){
-        trackBody = req.body.track;
-        trackBody._id = mongoose.Types.ObjectId();
-        newTrack = new Track(trackBody);
-        await newTrack.save();
+
+    let track = await Track.findOne({ uri: req.body.track.uri });
+    // Create track if doesn't exist
+    if (track == null) {
+        let spotify_track = req.body.track;
+        // Create Track
+        const newTrack = new Track({
+            _id: mongoose.Types.ObjectId(),
+            name: spotify_track.name,
+            artists: spotify_track.artists,
+            album: spotify_track.album,
+            uri: spotify_track.uri,
+            duration_ms: spotify_track.duration_ms
+        });
+        let retval = await newTrack.save();
+        if (retval == null){
+            return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `track could not be saved.`});
+        }
+        // Define track after creating
+        track = newTrack;
     }
+
     // Updating mixtape data
     let newTotalSongs = mixtape.num_of_songs + 1;
-    // let newDuration = (parseInt(mixtape.total_duration) + parseInt(newTrack.duration));
+    let newDuration = (parseInt(mixtape.total_duration) + parseInt(track.duration_ms) / 1000);
 
     // Update tracks in mixtape
     let update_query = {
         "$set": {
-            // "total_duration": newDuration,
+            "total_duration": newDuration,
             "num_of_songs": newTotalSongs
         },
         "$push": {
-            "tracks": newTrack
+            "tracks": track
         }
     };
 
@@ -132,12 +146,12 @@ module.exports.removeTrack = async function (req, res) {
 
     // Updating mixtape data
     let newTotalSongs = mixtape.num_of_songs - 1;
-    let newDuration = (parseInt(mixtape.total_duration) - parseInt(req.body.track.duration));
+    let newDuration = (parseInt(mixtape.total_duration) - parseInt(req.body.track.duration) / 1000);
 
     // Find track to remove in mixtape
     let tracks = mixtape.tracks;
     for (let i = 0; i < tracks.length; i++) {
-        if (tracks[i]._id.equals(req.body.track._id)) {
+        if (tracks[i].uri.equals(req.body.track_uri)) {
             tracks.splice(i, 1);
             break;
         }

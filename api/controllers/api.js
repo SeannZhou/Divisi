@@ -47,16 +47,16 @@ module.exports.getAlbum = function (req, res) {
     })
 }
 
-module.exports.search = async function (req, res) = {
+module.exports.search = async function (req, res) {
     let searchName = req.query.name;
     var users = await User.find({ username: { $regex: searchName, $options: 'i' } });
     var groups = await Group.find({ name: { $regex: searchName, $options: 'i' } });
     var mixtapes = await Mixtape.find({ name: { $regex: searchName, $options: 'i' } });
 
     let results = []
-    users.splice(0, 3).forEach(user => results.push({ _id: user._id, title: user.name, picture: user.profile_picture, url: `/user/${user._id}` }));
-    groups.splice(0, 3).forEach(group => results.push({ _id: group._id, title: group.name, url: `/group/${group._id}` }));
-    mixtapes.splice(0, 3).forEach(mixtape => results.push({ _id: mixtape._id, title: mixtape.name, picture: mixtape.mixtape_cover, url: `/mixtape/${mixtape._id}` }));
+    users.splice(0, 2).forEach(user => results.push({ _id: user._id, title: user.username, picture: user.profile_picture, url: `/user/${user._id}` }));
+    groups.splice(0, 2).forEach(group => results.push({ _id: group._id, title: group.name, url: `/group/${group._id}` }));
+    mixtapes.splice(0, 2).forEach(mixtape => results.push({ _id: mixtape._id, title: mixtape.name, picture: mixtape.mixtape_cover, url: `/mixtape/${mixtape._id}` }));
 
     return res.status(httpStatus.OK).json({ results: results });
 }

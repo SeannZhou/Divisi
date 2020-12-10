@@ -91,8 +91,8 @@ module.exports.likeTrack = async (req, res) => {
         if (retval == null){
             return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `track could not be saved.`});
         }
-        // Give track_id variable new valid ID
-        track._id = newTrack._id;
+        // Define track after creating
+        track = newTrack;
     }
 
     // Create like if does not exist
@@ -113,7 +113,11 @@ module.exports.likeTrack = async (req, res) => {
             return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `like could not be saved.`});
         }
 
-        user = await User.findOneAndUpdate({"_id": user._id}, {$push: {liked_tracks: track._id }}, {new: true});
+        let new_track = {
+            uri: track.uri,
+            name: track.name
+        };
+        user = await User.findOneAndUpdate({"_id": user._id}, {$push: {liked_tracks: new_track }}, {new: true});
         if (user == null){
             return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `user could not be updated.`});
         }

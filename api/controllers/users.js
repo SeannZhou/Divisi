@@ -168,8 +168,6 @@ module.exports.removeFriend = async function (req, res) {
     }
     let user = req.body.user;
     let friend = await getUserHelper(req.params.id);
-    console.log('friend: ' + friend);
-    console.log('user: ' + user);
     if (friend == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.id} does not exist`});
     }

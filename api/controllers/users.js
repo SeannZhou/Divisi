@@ -144,7 +144,7 @@ module.exports.updateUser = function (req, res) {
     })
 }
 
-module.exports.addFriend = async (req, res) => {
+module.exports.addFriend = async function (req, res) {
     if(req.params.id == req.body.user._id){
         return res.status(httpStatus.BAD_REQUEST).json({ error: "You cannot friend yourself"});
     }
@@ -157,4 +157,19 @@ module.exports.addFriend = async (req, res) => {
     User.findOneAndUpdate({"_id": user._id}, {$push: {friends: { _id: friend._id, name: friend.username }}}, {new: true}).then(updatedUser => {
         return res.status(httpStatus.OK).json({user: updatedUser});
     })
+}
+
+module.exports.removeFriend = async function (req, res) {
+    if (req.params.id == req.body.user._id) {
+        return res.status(httpStatus.BAD_REQUEST).json({ error: "You cannot unfriend yourself" });
+    }
+    let friend = await getUserHelper(req.params.id);
+    let user = await User.findOne({ _id: req.params.id });
+    if (!(user.friends.some(e => e._id === user._id) && friend.friends.some(e => e._id === user._id))) {
+        return res.status(httpStatus.BAD_REQUEST).json({ error: `User ${friend.username} is not a friend of user ${user.username}` })
+    }
+    await User.updateOne({ "_id": friend._id }, { $pull: { friends: { _id: user._id } } });
+    User.findOneAndUpdate({ "_id": user._id }, { $pull: { friends: { _id: friend._id } } }, { new: true }).then(updatedUser => {
+        return res.status(httpStatus.OK).json({ user: updatedUser });
+    });
 }

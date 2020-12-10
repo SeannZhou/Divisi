@@ -148,8 +148,11 @@ module.exports.addFriend = async function (req, res) {
     if(req.params.id == req.body.user._id){
         return res.status(httpStatus.BAD_REQUEST).json({ error: "You cannot friend yourself"});
     }
-    let friend = await getUserHelper(req.params.id);
     let user = req.body.user;
+    let friend = await getUserHelper(req.params.id);
+    if (friend == null) {
+            return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.id} does not exist`});
+        }
     if(user.friends.some(e => e._id === user._id) || friend.friends.some(e => e._id === user._id)){
         return res.status(httpStatus.BAD_REQUEST).json({ error: `User ${friend.username} is already a friend of user ${user.username}`})
     }
@@ -163,9 +166,14 @@ module.exports.removeFriend = async function (req, res) {
     if (req.params.id == req.body.user._id) {
         return res.status(httpStatus.BAD_REQUEST).json({ error: "You cannot unfriend yourself" });
     }
+    let user = req.body.user;
     let friend = await getUserHelper(req.params.id);
-    let user = await User.findOne({ _id: req.params.id });
-    if (!(user.friends.some(e => e._id === user._id) && friend.friends.some(e => e._id === user._id))) {
+    console.log('friend: ' + friend);
+    console.log('user: ' + user);
+    if (friend == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.params.id} does not exist`});
+    }
+    if (!(user.friends.some(e => e._id === friend._id) && friend.friends.some(e => e._id === user._id))) {
         return res.status(httpStatus.BAD_REQUEST).json({ error: `User ${friend.username} is not a friend of user ${user.username}` })
     }
     await User.updateOne({ "_id": friend._id }, { $pull: { friends: { _id: user._id } } });

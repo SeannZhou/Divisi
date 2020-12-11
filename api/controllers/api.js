@@ -11,6 +11,7 @@ const Mixtape = require("../models/Mixtape");
 const Like = require("../models/Like");
 
 const { getUserById } = require('./users');
+const Activity = require('../models/Activity');
 
 const getTrackHelper = async (id) => await Track.findById(id).catch((err) => { return null });
 
@@ -61,26 +62,6 @@ module.exports.search = async function (req, res) {
     return res.status(httpStatus.OK).json({ results: results });
 }
 
-//module.exports.search = async (req, res) => {
-//    let searchName = req.query.name;
-//    var tracks = await Track.find({ title: { $regex: searchName, $options: 'i' } });
-//    var artists = await Artist.find({ name: { $regex: searchName, $options: 'i' } });
-//    var users = await User.find({ username: { $regex: searchName, $options: 'i' } });
-//    var groups = await Group.find({ name: { $regex: searchName, $options: 'i' } });
-//    var mixtapes = await Mixtape.find({ name: { $regex: searchName, $options: 'i' } });
-//    var albums = await Album.find({ name: { $regex: searchName, $options: 'i' } });
-//
-//    let results = []
-//    tracks.splice(0, 3).forEach(track => results.push({ _id: track._id, title: track.title, picture: track.cover_picture, url: `/track/${track._id}` }));
-//    artists.splice(0, 3).forEach(artist => results.push({ _id: artist._id, title: artist.name, picture: artist.artist_cover, url: `/artist/${artist._id}` }));
-//    users.splice(0, 3).forEach(user => results.push({ _id: user._id, title: user.name, picture: user.profile_picture, url: `/user/${user._id}` }));
-//    groups.splice(0, 3).forEach(group => results.push({ _id: group._id, title: group.name, url: `/group/${group._id}` }));
-//    mixtapes.splice(0, 3).forEach(mixtape => results.push({ _id: mixtape._id, title: mixtape.name, picture: mixtape.mixtape_cover, url: `/mixtape/${mixtape._id}` }));
-//    albums.splice(0, 3).forEach(album => results.push({ _id: album._id, title: album.title, url: `/album/${album._id}` }));
-//
-//    return res.status(httpStatus.OK).json({ results: results });
-//}
-
 module.exports.likeTrack = async (req, res) => {
     let user = await getUserById(req.params.user_id);
     if (user == null) {
@@ -110,13 +91,17 @@ module.exports.likeTrack = async (req, res) => {
     }
 
     // Create like if does not exist
-    let like = await Like.findOne({ object_id: track._id });
+    let like = await Like.findOne({ "object._id": track._id });
     if (like == null) {
         // Create Like
         const newLike = new Like({
             _id: mongoose.Types.ObjectId(),
             object_type: "TRACK",
-            object_id: track._id,
+            object: {
+                _id: track._id,
+                name: track.name,
+                uri: track.uri
+            },
             num_of_likes: 1,
             who_likes: []
         });
@@ -145,7 +130,10 @@ module.exports.likeTrack = async (req, res) => {
     }
 
     // Update and return success
-    like = await Like.findOneAndUpdate({"_id": like._id}, {$push: {who_likes: user._id }}, {new: true});
+    like = await Like.findOneAndUpdate({"_id": like._id}, {
+        $push: { who_likes: user._id },
+        $inc: { num_of_likes: 1 },
+    }, { new: true } );
     if (like == null){
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `like could not be updated.`});
     }
@@ -158,7 +146,26 @@ module.exports.likeTrack = async (req, res) => {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `user could not be updated.`});
     }
 
-    return res.status(httpStatus.OK).json({ user: user, like: like });
+    let newActivity = new Activity({
+        _id: mongoose.Types.ObjectId(),
+        type: "LikedSong",
+        user: {
+            _id: user._id,
+            username: user.username,
+            profile_picture: user.profile_picture
+        },
+        target: {
+            _id: new_track.uri,
+            name: new_track.name
+        },
+        num_of_likes: 0,
+        timestamp: new Date()
+    });
+    console.log(newActivity);
+    let result = await newActivity.save();
+    console.log(result);
+
+    return res.status(httpStatus.OK).json({ user: user, activity: newActivity });
 }
 
 module.exports.unlikeTrack = async (req, res) => {
@@ -170,20 +177,20 @@ module.exports.unlikeTrack = async (req, res) => {
     if (user == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `there are no users found with id ${req.params.user_id}` });
     }
-    let like = await Like.findOne({ object_id: track._id });
+    let like = await Like.findOne({ "object._id": track._id });
     if (like == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `there are no likes found with an object ID of id ${track._id}` });
     }
 
     let update_query = {
-        "$set": {
-            "num_of_likes": like.num_of_likes - 1
+        "$inc": {
+            "num_of_likes": -1
         },
         "$pull": {
             who_likes: user._id
         }
     };
-    like = await Like.findOneAndUpdate({ object_id: track._id }, update_query, {new: true});
+    like = await Like.findOneAndUpdate({ "object._id": track._id}, update_query, {new: true});
     if (like == null){
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: `like could not be updated.`});
     }

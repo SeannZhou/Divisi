@@ -11,9 +11,8 @@ const LikeSchema = new Schema({
         type: String,
         required: true
     },
-    object_id: {
-        type: String,
-        required: true
+    object: {
+        type: Object
     },
     who_likes: {
         type: Array

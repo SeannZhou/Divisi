@@ -53,19 +53,23 @@ io.on('connection', function(socket) {
 
     console.log(`Client ${socket.id} connected.`);
 
-    socket.on('join group', (group, user, activity) => {
-        console.log(`socket ${socket.id} requested to join group ${group._id}`);
-        socket.broadcast.emit('user join group', user, group, activity);
+    socket.on('join group', (activity) => {
+        console.log("===============================")
+        console.log(activity)
+        console.log(`socket ${socket.id} requested to join group ${activity.target._id}`);
+        socket.broadcast.emit('user join group', activity);
     });
 
     socket.on('like track', (activity) => {
+        console.log("===============================")
+        console.log(activity);
         console.log(`socket ${socket.id} liked track ${activity.target.name}`);
         socket.broadcast.emit('user liked track', activity);
     })
 
     socket.on('message', (msg) => {
-        console.log(`${msg} from ${socket.id}`);
-        socket.broadcast.emit('pm', msg);
+        console.log(`${socket.id}: ${msg}`);
+        socket.emit('pm', msg);
     })
 
     socket.on('disconnect', function() {

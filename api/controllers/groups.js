@@ -67,7 +67,6 @@ const updateGroupActivity = async(activity, group) => {
 }
 
 module.exports.userJoinsGroup = async function (req, res) {
-
     let update_query = { $push: { groups:
                 {
                     _id: req.params.id,
@@ -101,7 +100,9 @@ module.exports.userJoinsGroup = async function (req, res) {
         },
         target: {
             _id: newGroup._id,
-            name: newGroup.name
+            name: newGroup.name,
+            members: newGroup.members,
+            created_by: newGroup.created_by
         },
         num_of_likes: 0,
         group: newGroup._id,

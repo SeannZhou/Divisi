@@ -79,7 +79,7 @@ module.exports.likeTrack = async (req, res) => {
             artists: spotify_track.artists,
             album: spotify_track.album,
             uri: spotify_track.uri,
-            duration_ms: spotify_track.duration_ms
+            duration: spotify_track.duration_ms
         });
 
         let retval = await newTrack.save();
@@ -159,6 +159,7 @@ module.exports.likeTrack = async (req, res) => {
             name: new_track.name
         },
         num_of_likes: 0,
+        comments: [],
         timestamp: new Date()
     });
     console.log(newActivity);

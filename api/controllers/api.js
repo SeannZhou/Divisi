@@ -48,6 +48,16 @@ module.exports.getAlbum = function (req, res) {
     })
 }
 
+module.exports.getActivity = function (req, res) {
+    Activty.findById(req.params.id).then(activity => {
+        if (album) {
+            return res.status(httpStatus.OK).json({ activity: activity });
+        } else {
+            return res.status(httpStatus.NOT_FOUND).json({ error: `there are no activity found with id ${req.params.id}` });
+        }
+    })
+}
+
 module.exports.search = async function (req, res) {
     let searchName = req.query.name;
     var users = await User.find({ username: { $regex: searchName, $options: 'i' } });

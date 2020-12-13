@@ -48,6 +48,16 @@ module.exports.getAlbum = function (req, res) {
     })
 }
 
+module.exports.getActivity = function (req, res) {
+    Activity.findById(req.params.id).then(activity => {
+        if (activity) {
+            return res.status(httpStatus.OK).json({ activity: activity });
+        } else {
+            return res.status(httpStatus.NOT_FOUND).json({ error: `there are no activity found with id ${req.params.id}` });
+        }
+    })
+}
+
 module.exports.search = async function (req, res) {
     let searchName = req.query.name;
     var users = await User.find({ username: { $regex: searchName, $options: 'i' } });
@@ -79,7 +89,7 @@ module.exports.likeTrack = async (req, res) => {
             artists: spotify_track.artists,
             album: spotify_track.album,
             uri: spotify_track.uri,
-            duration_ms: spotify_track.duration_ms
+            duration: spotify_track.duration_ms
         });
 
         let retval = await newTrack.save();
@@ -159,6 +169,7 @@ module.exports.likeTrack = async (req, res) => {
             name: new_track.name
         },
         num_of_likes: 0,
+        comments: [],
         timestamp: new Date()
     });
     console.log(newActivity);

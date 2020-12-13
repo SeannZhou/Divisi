@@ -106,6 +106,7 @@ module.exports.userJoinsGroup = async function (req, res) {
         },
         num_of_likes: 0,
         group: newGroup._id,
+        comments: [],
         timestamp: new Date()
     });
     await newActivity.save();

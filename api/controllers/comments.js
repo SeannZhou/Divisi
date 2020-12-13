@@ -20,5 +20,7 @@ module.exports.createComment = async function (req, res) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `activity with id ${req.params.id} does not exist` });
     }
 
+    // Update inside target obj
+
     return res.status(httpStatus.OK).json({ activity: activity });
 }

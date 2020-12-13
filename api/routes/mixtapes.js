@@ -14,11 +14,11 @@ const router = express.Router();
 const controller = require("../controllers/mixtapes");
 const { createMixtape, deleteMixtape, getMixtape, addTrack, removeTrack, updateMixtape } = controller;
 
-router.post("/mixtape", createMixtape);
-router.delete('/mixtape/:mixtape_id/delete/:user_id', deleteMixtape);
-router.get('/mixtape/:id', getMixtape);
-router.patch('/mixtape/:id/addtrack', addTrack);
-router.patch('/mixtape/:id/removetrack', removeTrack);
-router.patch("/mixtape/:id", updateMixtape);
+router.post("/", createMixtape);
+router.delete('/:mixtape_id/delete/:user_id', deleteMixtape);
+router.get('/:id', getMixtape);
+router.patch('/:id/addtrack', addTrack);
+router.patch('/:id/removetrack', removeTrack);
+router.patch("/:id", updateMixtape);
 
 module.exports = router;

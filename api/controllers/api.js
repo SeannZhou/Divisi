@@ -49,8 +49,8 @@ module.exports.getAlbum = function (req, res) {
 }
 
 module.exports.getActivity = function (req, res) {
-    Activty.findById(req.params.id).then(activity => {
-        if (album) {
+    Activity.findById(req.params.id).then(activity => {
+        if (activity) {
             return res.status(httpStatus.OK).json({ activity: activity });
         } else {
             return res.status(httpStatus.NOT_FOUND).json({ error: `there are no activity found with id ${req.params.id}` });

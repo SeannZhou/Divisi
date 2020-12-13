@@ -26,6 +26,10 @@ const ActivitySchema = new Schema({
         type: String,
         required: false
     },
+    comments: {
+        type: Array,
+        required: false
+    },
     timestamp: {
         type: Date,
         required: true

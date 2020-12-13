@@ -6,9 +6,15 @@ const Activity = require("../models/Activity")
 
 
 module.exports.createComment = async function (req, res) {
+    let new_comment = {
+        created_by: req.body.comment.created_by,
+        content: req.body.comment.content,
+        timestamp: new Date()
+    };
+
     // Add new comment to activity
     let activity = await Activity.findOneAndUpdate({ _id: req.params.id }, {
-        $push: { comments: { req.body.comment } }
+        $push: { comments: { new_comment } }
     }, { new: true });
     if (activity == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `activity with id ${req.params.id} does not exist` });

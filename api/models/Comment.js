@@ -3,10 +3,6 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const CommentSchema = new Schema({
-    title: {
-        type: String,
-        required: true
-    },
     created_by: {
         type: Object,
         required: true

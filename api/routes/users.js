@@ -17,11 +17,11 @@ const { registerUser, loginUser, getUser, deleteUser, updateUser, addFriend, rem
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.get('/account/:id', getUser);
-router.delete("/account/:id", deleteUser);
-router.patch("/account/:id", updateUser);
-router.patch("/user/:id/addFriend", addFriend);
-router.patch("/user/:id/removeFriend", removeFriend);
+router.get('/:id', getUser);
+router.delete("/:id", deleteUser);
+router.patch("/:id", updateUser);
+router.patch("/:id/addFriend", addFriend);
+router.patch("/:id/removeFriend", removeFriend);
 
 module.exports = router;
 

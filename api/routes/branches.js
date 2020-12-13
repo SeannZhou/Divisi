@@ -10,11 +10,11 @@ const router = express.Router();
 const controller = require("../controllers/branches");
 const { createBranch, getBranch, deleteBranch, updateBranch, addTrack, removeTrack } = controller;
 
-router.post("/branch", createBranch);
-router.get('/branch/:id', getBranch);
-router.delete('/branch/:id', deleteBranch);
-router.patch('/branch/:id', updateBranch);
-router.patch('/branch/:id/addtrack', addTrack);
-router.patch('/branch/:id/removetrack/:track_id', removeTrack);
+router.post("/", createBranch);
+router.get('/:id', getBranch);
+router.delete('/:id', deleteBranch);
+router.patch('/:id', updateBranch);
+router.patch('/:id/addtrack', addTrack);
+router.patch('/:id/removetrack/:track_id', removeTrack);
 
 module.exports = router;

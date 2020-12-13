@@ -16,15 +16,3 @@ module.exports.createComment = async function (req, res) {
 
     return res.status(httpStatus.OK).json({ activity: activity });
 }
-/*
-        params: id: activity_id
-        body: {
-            comment: {
-                content: String
-                created_by: {
-                        user_id: { type: String },
-                        name: { type: String }
-                    }
-            }
-        }
-    */

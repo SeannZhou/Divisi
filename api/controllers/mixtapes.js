@@ -7,15 +7,18 @@ const Mixtape = require("../models/Mixtape");
 const Group = require("../models/Group");
 const Track = require("../models/Track");
 const { TOO_MANY_REQUESTS } = require('http-status');
+const { RandomPicture } = require('random-picture');
 
 module.exports.createMixtape = async function (req, res) {
+    const image = await RandomPicture();
+
     // Creat mixtape and add branch obj inside
     const newMixtape = new Mixtape({
         _id: mongoose.Types.ObjectId(),
         name: req.body.name,
         tracks: [],
         user_branches: [],
-        mixtape_cover: req.body.mixtape_cover,
+        mixtape_cover: image.url,
         description: req.body.description,
         num_of_songs: 0,
         total_duration: 0,

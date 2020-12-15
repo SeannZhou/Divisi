@@ -1,5 +1,6 @@
 const httpStatus = require('http-status');
 const mongoose = require("mongoose");
+const { RandomPicture } = require('random-picture');
 
 // load models
 const User = require("../models/User");
@@ -7,6 +8,8 @@ const Group = require("../models/Group");
 const Activity = require("../models/Activity");
 
 module.exports.createGroup = async function (req, res) {
+    const image = await RandomPicture();
+
     // Creat group and add branch obj inside
     const newGroup = new Group({
         _id: mongoose.Types.ObjectId(),
@@ -14,7 +17,7 @@ module.exports.createGroup = async function (req, res) {
         members: [],
         mixtapes: [],
         activity: [],
-        group_cover: req.body.group_cover,
+        group_cover: image.url,
         description: req.body.description,
         is_public: req.body.is_public,
         created_by: {

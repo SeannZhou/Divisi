@@ -10,7 +10,7 @@ const Activity = require("../models/Activity");
 module.exports.createGroup = async function (req, res) {
     const image = await RandomPicture();
 
-    // Creat group and add branch obj inside
+    // Create group and add branch obj inside
     const newGroup = new Group({
         _id: mongoose.Types.ObjectId(),
         name: req.body.name,

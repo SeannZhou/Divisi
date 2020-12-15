@@ -19,7 +19,8 @@ module.exports.registerUser = async function (req, res) {
     if (user) {
         return res.status(httpStatus.BAD_REQUEST).json(`User with email ${req.body.email} already exist`);
     }
-    let profile = getProfile();
+    let profile = await getProfile();
+    console.log(profile.mediumPicture);
     const newUser = new User({
         _id: mongoose.Types.ObjectId(),
         username: req.body.username,

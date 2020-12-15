@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const httpStatus = require('http-status');
 const mongoose = require("mongoose");
+const getProfile = require('user-generator');
 
 // load models
 const User = require("../models/User");
@@ -10,45 +11,45 @@ const User = require("../models/User");
 const validateRegisterInput = require("../utils/register");
 const validateLoginInput = require("../utils/login");
 
-module.exports.registerUser = function (req, res) {
+module.exports.registerUser = async function (req, res) {
     const { errors, isValid } = validateRegisterInput(req.body);    // Form validation
     if (!isValid) return res.status(httpStatus.BAD_REQUEST).json(errors)
 
-    User.findOne({ email: req.body.email }).then(user => {
-        if (user) {
-            return res.status(httpStatus.BAD_REQUEST).json(`User with email ${req.body.email} already exist`);
-        } else {
-            const newUser = new User({
-                _id: mongoose.Types.ObjectId(),
-                username: req.body.username,
-                email: req.body.email,
-                password: req.body.password,
-                profile_picture: "",
-                description: "",
-                mixtapes: [],
-                branches: [],
-                groups: [],
-                friends: [],
-                gender: "",
-                country: "",
-                age: "",
-                liked_tracks: []
-            });
-            console.log(newUser)
-            // Hash password before saving in database
-            bcrypt.genSalt(10, (err, salt) => {
-                bcrypt.hash(newUser.password, salt, (err, hash) => {
-                    if (err) throw err;
-                    newUser.password = hash;
-                    newUser
-                        .save()
-                        .then(user => res.json(user))
-                        .catch(err => console.log(err));
-                });
-            });
-            return res.status(httpStatus.CREATED);
-        }
+    let user = await User.findOne({ email: req.body.email });
+    if (user) {
+        return res.status(httpStatus.BAD_REQUEST).json(`User with email ${req.body.email} already exist`);
+    }
+    let profile = getProfile();
+    const newUser = new User({
+        _id: mongoose.Types.ObjectId(),
+        username: req.body.username,
+        email: req.body.email,
+        password: req.body.password,
+        profile_picture: profile.mediumPicture,
+        description: "",
+        mixtapes: [],
+        branches: [],
+        groups: [],
+        friends: [],
+        gender: "",
+        country: "",
+        age: "",
+        liked_tracks: []
     });
+    console.log(newUser)
+    // Hash password before saving in database
+    bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(newUser.password, salt, (err, hash) => {
+            if (err) throw err;
+            newUser.password = hash;
+            newUser
+                .save()
+                .then(user => res.json(user))
+                .catch(err => console.log(err));
+        });
+    });
+
+    return res.status(httpStatus.CREATED);
 }
 module.exports.loginUser = function (req, res) {
     // Form validation

@@ -57,14 +57,14 @@ io.on('connection', function(socket) {
     socket.on('join group', (activity) => {
         console.log("===============================")
         console.log(activity)
-        console.log(`socket ${socket.id} requested to join group ${activity.target._id}`);
+        // console.log(`socket ${socket.id} requested to join group ${activity.target._id}`);
         socket.broadcast.emit('user join group', activity);
     });
 
     socket.on('like track', (activity) => {
         console.log("===============================")
         console.log(activity);
-        console.log(`socket ${socket.id} liked track ${activity.target.name}`);
+        // console.log(`socket ${socket.id} liked track ${activity.target.name}`);
         socket.broadcast.emit('user liked track', activity);
     })
 

@@ -6,8 +6,13 @@ const Activity = require("../models/Activity")
 
 
 module.exports.createComment = async function (req, res) {
+    let user = await User.findOneAndUpdate({"_id": req.body.comment.created_by.user_id}, update_query, {new: true});
+    if (user == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `user with id ${req.body.comment.created_by.user_id} does not exist`});
+    }
     let new_comment = {
         created_by: req.body.comment.created_by,
+        profile_picture: user.profile_picture,
         content: req.body.comment.content,
         timestamp: new Date()
     };

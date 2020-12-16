@@ -4,6 +4,7 @@ const { RandomPicture } = require('random-picture');
 
 // load models
 const User = require("../models/User");
+const Mixtape = require("../models/Mixtape");
 const Group = require("../models/Group");
 const Activity = require("../models/Activity");
 
@@ -70,10 +71,16 @@ const updateGroupActivity = async(activity, group) => {
 }
 
 module.exports.userJoinsGroup = async function (req, res) {
+    let group = await Group.findOne({ _id: req.params.id });
+    if (group == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
+    }
+
     let update_query = { $push: { groups:
                 {
                     _id: req.params.id,
-                    name: req.body.group_name
+                    name: req.body.group_name,
+                    group_picture: group.group_cover
                 }
         }};
     let newUser = await User.findOneAndUpdate({"_id": req.body.user._id}, update_query, {new: true});
@@ -84,11 +91,12 @@ module.exports.userJoinsGroup = async function (req, res) {
         $push: {
             members: {
                 _id: req.body.user._id,
-                name: req.body.user.username
+                name: req.body.user.username,
+                profile_picture: newUser.picture_picture
             }
         }
     };
-    let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query, {new: true} );
+    let newGroup = await  findOneAndUpdate({"_id": req.params.id}, update_query, {new: true} );
     if (newGroup == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
     }
@@ -151,10 +159,15 @@ module.exports.addMixtape = async function (req, res) {
             }
         }
     }
+    let mixtape = await Mixtape.findOne({ _id: req.body.mixtape_id });
+    if (mixtape == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `mixtape with id ${req.body.mixtape_id} does not exist`});
+    }
     let update_query = { $push: { mixtapes:
                 {
                     _id: req.body.mixtape_id,
-                    name: req.body.mixtape_name
+                    name: req.body.mixtape_name,
+                    mixtape_cover: mixtape.mixtape_cover
                 }
         }};
 

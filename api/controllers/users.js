@@ -20,7 +20,6 @@ module.exports.registerUser = async function (req, res) {
         return res.status(httpStatus.BAD_REQUEST).json(`User with email ${req.body.email} already exist`);
     }
     let profile = await getProfile();
-    console.log(profile.mediumPicture);
     const newUser = new User({
         _id: mongoose.Types.ObjectId(),
         username: req.body.username,
@@ -158,8 +157,8 @@ module.exports.addFriend = async function (req, res) {
     if(user.friends.some(e => e._id === user._id) || friend.friends.some(e => e._id === user._id)){
         return res.status(httpStatus.BAD_REQUEST).json({ error: `User ${friend.username} is already a friend of user ${user.username}`})
     }
-    await User.updateOne({"_id": friend._id}, { $push: {friends: { _id: user._id, name: user.username }}});
-    User.findOneAndUpdate({"_id": user._id}, {$push: {friends: { _id: friend._id, name: friend.username }}}, {new: true}).then(updatedUser => {
+    await User.updateOne({"_id": friend._id}, { $push: {friends: { _id: user._id, name: user.username, profile_picture: user.profile_picture }}});
+    User.findOneAndUpdate({"_id": user._id}, {$push: {friends: { _id: friend._id, name: friend.username, profile_picture: friend.profile_picture }}}, {new: true}).then(updatedUser => {
         return res.status(httpStatus.OK).json({user: updatedUser});
     })
 }

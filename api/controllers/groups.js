@@ -69,7 +69,7 @@ console.log('getGroups');
         return res.status(httpStatus.NOT_FOUND).json({ error: `there are no groups that exist!`});
     }
     groups.sort( function (a,b) {
-        return new Date(b.date) - new Date(a.date);
+        return new Date(b.date_created) - new Date(a.date_created);
     })
 
     return res.status(httpStatus.OK).json({ groups: groups });

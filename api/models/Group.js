@@ -46,6 +46,9 @@ const GroupSchema = new Schema({
     activities: {
         type: Array,
         required: false
+    },
+    date_created: {
+        type: Date
     }
 });
 

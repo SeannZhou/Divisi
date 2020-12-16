@@ -92,11 +92,11 @@ module.exports.userJoinsGroup = async function (req, res) {
             members: {
                 _id: req.body.user._id,
                 name: req.body.user.username,
-                profile_picture: newUser.picture_picture
+                profile_picture: newUser.profile_picture
             }
         }
     };
-    let newGroup = await  findOneAndUpdate({"_id": req.params.id}, update_query, {new: true} );
+    let newGroup = await Group.findOneAndUpdate({"_id": req.params.id}, update_query, {new: true} );
     if (newGroup == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
     }

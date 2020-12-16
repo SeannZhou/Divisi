@@ -91,7 +91,7 @@ module.exports.addTrack = async function (req, res) {
             artists: spotify_track.artists,
             album: spotify_track.album,
             uri: spotify_track.uri,
-            duration: spotify_track.duration
+            duration: spotify_track.duration_ms
         });
         let retval = await newTrack.save();
         if (retval == null){

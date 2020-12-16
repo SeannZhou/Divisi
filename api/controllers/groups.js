@@ -62,7 +62,7 @@ module.exports.getGroup = async function (req, res) {
     }
 }
 
-module.exports.getGroup = async function (req, res) {
+module.exports.getGroups = async function (req, res) {
     let groups = await Group.find({});
     if (groups == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `there are no groups that exist!`});

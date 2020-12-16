@@ -16,7 +16,7 @@ const { createGroup, getGroup, getGroups, userJoinsGroup, userLeaveGroup, addMix
 
 router.post("/", createGroup);
 router.get('/:id', getGroup);
-router.get('/groups', getGroups);
+router.get('/all/groups', getGroups);
 router.patch("/:id/join", userJoinsGroup);
 router.patch("/:id/leave", userLeaveGroup);
 router.patch("/:id/addMixtape", addMixtape);

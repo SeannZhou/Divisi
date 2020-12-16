@@ -63,11 +63,14 @@ module.exports.getGroup = async function (req, res) {
 }
 
 module.exports.getGroups = async function (req, res) {
+console.log('getGroups');
     let groups = await Group.find({});
     if (groups == null) {
         return res.status(httpStatus.NOT_FOUND).json({ error: `there are no groups that exist!`});
     }
-    groups.sort( (a,b) => (a.date_created.getTime() > b.date_created.getTime()) ? b : a);
+    groups.sort( function (a,b) {
+        return new Date(b.date) - new Date(a.date);
+    })
 
     return res.status(httpStatus.OK).json({ groups: groups });
 }

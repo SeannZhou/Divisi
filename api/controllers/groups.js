@@ -26,7 +26,8 @@ module.exports.createGroup = async function (req, res) {
             name: req.body.user.username
         },
         share_link: "",
-        num_of_likes: 0
+        num_of_likes: 0,
+        date_created: Date()
     });
 
     let retval = await newGroup.save();
@@ -59,6 +60,16 @@ module.exports.getGroup = async function (req, res) {
     } else {
         return res.status(httpStatus.NOT_FOUND).json({ error: `group with id ${req.params.id} does not exist`});
     }
+}
+
+module.exports.getGroups = async function (req, res) {
+    let groups = await Group.find({});
+    if (groups == null) {
+        return res.status(httpStatus.NOT_FOUND).json({ error: `there are no groups that exist!`});
+    }
+    groups.sort( (a,b) => (a.date_created.getTime() > b.date_created.getTime()) ? b : a);
+
+    return res.status(httpStatus.OK).json({ groups: groups });
 }
 
 const updateGroupActivity = async(activity, group) => {

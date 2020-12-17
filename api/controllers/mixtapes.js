@@ -115,7 +115,10 @@ module.exports.addTrack = async function (req, res) {
 
         // Define track after creating
         track = newTrack;
+        console.log(track.duration);
     }
+    console.log('ADDING TRACK TO MIXTAPE')
+    console.log(track.duration);
 
     // Updating mixtape data
     let newTotalSongs = mixtape.num_of_songs + 1;
